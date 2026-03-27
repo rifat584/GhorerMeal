@@ -6,7 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:meals": "node scripts/seedMeals.js",
+    "seed:meals:write": "node scripts/seedMeals.js --write",
+    "seed:reviews": "node scripts/seedReviews.js",
+    "seed:reviews:write": "node scripts/seedReviews.js --write",
+    "test:seed": "node --test scripts/mealSeedUtils.test.js && node --test scripts/reviewSeedUtils.test.js"
   },
   "keywords": [],
   "author": "",

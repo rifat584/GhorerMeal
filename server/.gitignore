@@ -3,4 +3,12 @@ node_modules
 .env.*
 !.env.example
 serviceKeyConverter.js
-firebase-adminsdk*.json
+*firebase-adminsdk*.json
+scripts/mealSeedUtils.js
+scripts/mealSeedUtils.test.js
+scripts/reviewSeedUtils.js
+scripts/reviewSeedUtils.test.js
+scripts/seedMeals.js
+scripts/seedReviews.js
+*.test.*
+
