@@ -1,2 +1,130 @@
-@import 'tailwindcss';
-@plugin "daisyui";
+@import url("https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500..700&display=swap");
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "ghorermeal";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #fffaf2;
+  --color-base-200: #f7ecd9;
+  --color-base-300: #edd9b8;
+  --color-base-content: #3d2418;
+
+  --color-primary: #c55a34;
+  --color-primary-content: #fff7f3;
+  --color-secondary: #d8a12f;
+  --color-secondary-content: #2f1c05;
+  --color-accent: #4f7a4b;
+  --color-accent-content: #f5fff4;
+  --color-neutral: #5e4032;
+  --color-neutral-content: #fff7f3;
+
+  --color-info: #3c83b7;
+  --color-info-content: #f5fbff;
+  --color-success: #4f8a53;
+  --color-success-content: #f4fff5;
+  --color-warning: #d49318;
+  --color-warning-content: #2c1b00;
+  --color-error: #b84234;
+  --color-error-content: #fff5f4;
+
+  --radius-selector: 1rem;
+  --radius-field: 0.85rem;
+  --radius-box: 1.25rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "ghorermeal-night";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #1b1411;
+  --color-base-200: #241b17;
+  --color-base-300: #2d231d;
+  --color-base-content: #f4e7d3;
+
+  --color-primary: #e07a52;
+  --color-primary-content: #2a140c;
+  --color-secondary: #e1b04a;
+  --color-secondary-content: #2c1b04;
+  --color-accent: #81ab73;
+  --color-accent-content: #11210d;
+  --color-neutral: #3a2c25;
+  --color-neutral-content: #f8ecde;
+
+  --color-info: #74b7e3;
+  --color-info-content: #10202d;
+  --color-success: #79c282;
+  --color-success-content: #0f2111;
+  --color-warning: #f0b84a;
+  --color-warning-content: #271700;
+  --color-error: #ef7b6a;
+  --color-error-content: #2a0d08;
+
+  --radius-selector: 1rem;
+  --radius-field: 0.85rem;
+  --radius-box: 1.25rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@custom-variant dark (&:where([data-theme=ghorermeal-night], [data-theme=ghorermeal-night] *));
+
+@theme {
+  --font-sans: "Anek Bangla", "Segoe UI", sans-serif;
+  --font-display: "Fraunces", "Georgia", serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-base-100);
+    color: var(--color-base-content);
+    font-family: var(--font-sans);
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, color-mix(in srgb, var(--color-secondary) 15%, transparent) 0, transparent 26rem),
+      radial-gradient(circle at right 12% top 18%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0, transparent 22rem),
+      var(--color-base-100);
+    color: var(--color-base-content);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    color: var(--color-base-content);
+  }
+
+  * {
+    border-color: color-mix(in srgb, var(--color-neutral) 18%, transparent);
+  }
+}
