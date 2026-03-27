@@ -17,7 +17,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: [`${process.env.BASE_URL}`],
+    origin: [`${process.env.BASE_URL}, "https://ghorermeal.web.app"`],
     credentials: true,
     optionSuccessStatus: 200,
   })
