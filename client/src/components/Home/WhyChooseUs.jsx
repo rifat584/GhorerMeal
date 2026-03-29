@@ -1,42 +1,56 @@
 import React from "react";
-import { FaLeaf, FaClock, FaStar } from "react-icons/fa";
+import { FaClock, FaLeaf, FaStar } from "react-icons/fa";
+import Container from "../Shared/Container";
 
 const WhyChooseUs = () => {
   return (
-    <section className="py-20 bg-[#80BF2A]">
-      <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-12">
-        <div className="lg:w-1/3 flex flex-col gap-6">
-          <h2 className="text-4xl font-bold text-green-900">Why Choose Us</h2>
-          <p className="text-gray-700 text-lg">
-            Our platform brings you the best meals made by top chefs, using
-            fresh ingredients and delivering them right to your doorstep.
-            Experience quality, speed, and excellence in every bite.
-          </p>
+    <section className="py-18">
+      <Container>
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="rounded-[2rem] border border-base-300 bg-base-100 p-8 shadow-sm md:p-10">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+              Why families stay
+            </p>
+            <h2 className="mt-4 text-3xl font-bold text-base-content md:text-4xl">
+              More than food delivery. It feels closer to a neighborhood kitchen.
+            </h2>
+            <p className="mt-4 text-base leading-8 text-base-content/72">
+              The platform is built around trust, consistency, and comfort. You
+              know who made the meal, what kind of cooking they are known for,
+              and when the order will arrive.
+            </p>
+          </div>
 
-          <ul className="flex flex-col gap-4">
-            <li className="flex items-center gap-3 text-gray-700">
-              <FaLeaf className="text-green-500 text-2xl" />
-              Fresh Ingredients for every meal
-            </li>
-            <li className="flex items-center gap-3 text-gray-700">
-              <FaClock className="text-yellow-500 text-2xl" />
-              Fast & Reliable Delivery
-            </li>
-            <li className="flex items-center gap-3 text-gray-700">
-              <FaStar className="text-blue-500 text-2xl" />
-              Experienced & Top-rated Chefs
-            </li>
-          </ul>
-        </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            <article className="rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+              <FaLeaf className="text-3xl text-accent" />
+              <h3 className="mt-5 text-xl font-semibold">Fresh ingredients</h3>
+              <p className="mt-3 text-sm leading-7 text-base-content/68">
+                Meals focus on balanced portions, familiar spices, and kitchen-made
+                freshness instead of mass-produced menus.
+              </p>
+            </article>
 
-        <div className="lg:flex-1 w-full">
-          <img
-            className="rounded-xl shadow-lg object-cover w-full h-96 lg:h-[500px]"
-            src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80"
-            alt="Delicious meals"
-          />
+            <article className="rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+              <FaClock className="text-3xl text-secondary" />
+              <h3 className="mt-5 text-xl font-semibold">Clear delivery windows</h3>
+              <p className="mt-3 text-sm leading-7 text-base-content/68">
+                Customers can quickly understand how long a meal will take and
+                choose dishes that fit lunch breaks or family dinners.
+              </p>
+            </article>
+
+            <article className="rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-sm">
+              <FaStar className="text-3xl text-primary" />
+              <h3 className="mt-5 text-xl font-semibold">Real local trust</h3>
+              <p className="mt-3 text-sm leading-7 text-base-content/68">
+                Ratings, repeat orders, and chef profiles help every kitchen earn
+                confidence through good food and dependable service.
+              </p>
+            </article>
+          </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

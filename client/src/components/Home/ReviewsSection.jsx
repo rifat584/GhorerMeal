@@ -8,6 +8,7 @@ import { Navigation } from "swiper/modules";
 import ReviewCard from "./ReviewCard";
 import queryFetch from "../../utilitis/queryFetch";
 import LoadingSpinner from "../Shared/LoadingSpinner";
+import Container from "../Shared/Container";
 
 const ReviewsSection = () => {
   const { data: reviews = [], isLoading } = useQuery({
@@ -20,27 +21,41 @@ const ReviewsSection = () => {
 
   if (reviews.length === 0) {
     return (
-      <section className="py-16 bg-gray-100">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Customer Reviews</h2>
-          <p className="text-gray-500">No reviews yet.</p>
-        </div>
+      <section className="bg-base-100 py-18">
+        <Container>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-base-content">Customer Reviews</h2>
+            <p className="mt-4 text-base-content/65">No reviews yet.</p>
+          </div>
+        </Container>
       </section>
     );
   }
 
   return (
-    <section className="bg-gray-100 py-30">
-      <div className="container mx-auto px-6">
-        <h2 className="text-3xl font-bold text-center mb-10">
-          Customer Reviews
-        </h2>
+    <section className="bg-base-100 py-18">
+      <Container>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary">
+              Community voices
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-base-content md:text-4xl">
+              What customers say after the first few orders
+            </h2>
+          </div>
+          <p className="max-w-xl text-sm leading-7 text-base-content/70">
+            Ratings and reviews help new customers order with more confidence and
+            help reliable cooks build stronger repeat business.
+          </p>
+        </div>
 
         <Swiper
           modules={[Navigation]}
           spaceBetween={20}
           slidesPerView={1}
           navigation
+          className="mt-10"
           breakpoints={{
             640: { slidesPerView: 1 },
             768: { slidesPerView: 2 },
@@ -53,7 +68,7 @@ const ReviewsSection = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
+      </Container>
     </section>
   );
 };
