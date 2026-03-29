@@ -4,9 +4,9 @@ import Logo from '../Logo'
 
 const Footer = () => {
   return (
-    <footer className='border-t border-base-300 bg-base-200/70'>
+    <footer className='border-t border-base-300/70 bg-base-200/55'>
       <Container>
-        <div className='grid gap-10 py-12 md:grid-cols-2 xl:grid-cols-[1.2fr_0.9fr_0.9fr]'>
+        <div className='grid gap-10 py-14 md:grid-cols-2 lg:py-16 xl:grid-cols-[1.2fr_0.9fr_0.9fr]'>
           <div className='space-y-4'>
             <div>
               <Logo />
@@ -58,7 +58,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className='flex flex-col gap-2 border-t border-base-300/70 py-5 text-sm text-base-content/60 md:flex-row md:items-center md:justify-between'>
+        <div className='flex flex-col gap-2 border-t border-base-300/70 py-6 text-sm text-base-content/60 md:flex-row md:items-center md:justify-between'>
           <p>© {new Date().getFullYear()} Ghorer Meal. Built for everyday home-style ordering.</p>
           <p>Designed for families, local cooks, and reliable daily meals.</p>
         </div>

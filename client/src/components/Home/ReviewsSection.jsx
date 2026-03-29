@@ -18,7 +18,7 @@ const ReviewsSection = () => {
   if (isLoading) return <LoadingSpinner />
 
   return (
-    <section className='bg-base-100 py-18'>
+    <section className='bg-base-200/40 py-20 lg:py-24'>
       <Container>
         <div className='mx-auto max-w-3xl text-center'>
           <h2 className='text-3xl font-bold text-base-content md:text-5xl'>
@@ -38,7 +38,7 @@ const ReviewsSection = () => {
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          className='mt-12 pb-12'
+          className='mt-12 pb-8'
           breakpoints={{
             640: { slidesPerView: 1.1 },
             768: { slidesPerView: 2 },

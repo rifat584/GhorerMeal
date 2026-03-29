@@ -3,9 +3,9 @@ import Container from '../Shared/Container'
 
 const BecomeChef = () => {
   return (
-    <section className='bg-base-200/45 py-18'>
+    <section className='bg-base-200/40 py-20 lg:py-24'>
       <Container>
-        <div className='grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12'>
+        <div className='grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14'>
           <div className='overflow-hidden rounded-[2rem] border border-base-300 bg-base-100 p-3 shadow-sm sm:p-4'>
             <img
               src='/chef-growth.jpg'
@@ -26,7 +26,7 @@ const BecomeChef = () => {
               </p>
             </header>
 
-            <div className='mt-8 grid gap-4 sm:grid-cols-2'>
+            <div className='mt-10 grid gap-4 sm:grid-cols-2'>
               <article className='rounded-[1.75rem] border border-base-300 bg-base-100 p-5 shadow-sm'>
                 <h3 className='text-lg font-semibold text-base-content'>Show meals clearly</h3>
                 <p className='mt-3 text-sm leading-7 text-base-content/70'>
@@ -44,7 +44,7 @@ const BecomeChef = () => {
               </article>
             </div>
 
-            <div className='mt-8 flex flex-wrap gap-3'>
+            <div className='mt-10 flex flex-wrap gap-3'>
               <Link to='/become-a-chef' className='btn btn-primary rounded-full px-6'>
                 Become a Chef
               </Link>

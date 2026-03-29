@@ -26,7 +26,7 @@ const faqItems = [
 
 const FAQ = () => {
   return (
-    <section className='bg-base-200/35 py-18'>
+    <section className='bg-base-200/40 py-20 lg:py-24'>
       <Container>
         <div className='mx-auto max-w-4xl'>
           <header className='mx-auto max-w-3xl text-center'>
@@ -40,7 +40,7 @@ const FAQ = () => {
             </p>
           </header>
 
-          <div className='mt-10 grid gap-4'>
+          <div className='mt-12 grid gap-4'>
             {faqItems.map((item) => (
               <details
                 key={item.question}

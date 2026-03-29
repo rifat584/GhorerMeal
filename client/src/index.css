@@ -104,8 +104,8 @@
   body {
     min-height: 100vh;
     background:
-      radial-gradient(circle at top left, color-mix(in srgb, var(--color-secondary) 15%, transparent) 0, transparent 26rem),
-      radial-gradient(circle at right 12% top 18%, color-mix(in srgb, var(--color-accent) 12%, transparent) 0, transparent 22rem),
+      radial-gradient(circle at top left, color-mix(in srgb, var(--color-primary) 8%, transparent) 0, transparent 24rem),
+      radial-gradient(circle at right 10% top 14%, color-mix(in srgb, var(--color-secondary) 8%, transparent) 0, transparent 20rem),
       var(--color-base-100);
     color: var(--color-base-content);
   }

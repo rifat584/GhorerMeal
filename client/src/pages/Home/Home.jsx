@@ -8,7 +8,7 @@ import FrequentlyAskedQuestions from '../../components/Home/FAQ'
 
 const Home = () => {
   return (
-    <main className='pb-16'>
+    <main className='bg-base-100'>
       <Hero />
       <DailyMeals />
       <MeetOurChefs />

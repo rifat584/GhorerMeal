@@ -38,7 +38,7 @@ const InnovativeRecipes = () => {
   const [featuredMeal, ...otherMeals] = meals
 
   return (
-    <section className='bg-base-200/45 py-18'>
+    <section className='bg-base-200/40 py-20 lg:py-24'>
       <Container>
         <header className='flex flex-col items-center text-center'>
           <h2 className='max-w-3xl text-3xl font-semibold text-base-content md:text-5xl'>
@@ -51,7 +51,7 @@ const InnovativeRecipes = () => {
           </p>
         </header>
 
-        <div className='mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]'>
+        <div className='mt-12 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]'>
           <article className='overflow-hidden rounded-4xl border border-base-300 bg-base-100 shadow-sm'>
             <img
               src={featuredMeal.foodImage}

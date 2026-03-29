@@ -53,7 +53,7 @@ const MeetOurChefs = () => {
 
   if (isError) {
     return (
-      <section className="bg-neutral py-18 text-neutral-content">
+      <section className="bg-neutral py-20 text-neutral-content lg:py-24">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-semibold md:text-5xl">
@@ -77,7 +77,7 @@ const MeetOurChefs = () => {
     selectedChef.description || buildChefSummary(selectedChef);
 
   return (
-    <section className="bg-neutral py-18 text-neutral-content">
+    <section className="bg-neutral py-20 text-neutral-content lg:py-24">
       <Container>
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-semibold md:text-5xl">
@@ -90,14 +90,14 @@ const MeetOurChefs = () => {
           </p>
         </div>
 
-        <div className="mt-10 rounded-4xl border border-white/10 bg-white/5 p-3">
+        <div className="mt-12 rounded-4xl border border-white/12 bg-white/[0.06] p-3 shadow-lg">
           <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
             {chefs.map((chef, index) => (
               <button
                 key={chef._id}
                 type="button"
                 onClick={() => setActiveChefIndex(index)}
-                className={`shrink-0 cursor-pointer rounded-full px-4 py-3 text-sm font-semibold transition ${index === activeChefIndex ? "bg-white text-neutral shadow-sm" : "text-neutral-content/72 hover:bg-white/10 hover:text-neutral-content"}`}
+                className={`shrink-0 cursor-pointer rounded-full px-4 py-3 text-sm font-semibold transition ${index === activeChefIndex ? "bg-white text-neutral shadow-sm" : "text-neutral-content/72 hover:bg-white/[0.08] hover:text-neutral-content"}`}
                 aria-pressed={index === activeChefIndex}
               >
                 {chef.name}
@@ -106,8 +106,8 @@ const MeetOurChefs = () => {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-8 xl:grid-cols-[0.61fr_1.22fr] xl:items-start">
-          <article className="rounded-4xl border border-white/10 bg-white/5 p-6 sm:p-8 h-full">
+        <div className="mt-12 grid gap-8 xl:grid-cols-[0.61fr_1.22fr] xl:items-start">
+          <article className="h-full rounded-4xl border border-white/12 bg-white/[0.07] p-6 shadow-lg sm:p-8">
             <div className="flex items-center gap-4">
               <img
                 src={selectedChef.profileImage || "/ghorermeal.png"}
@@ -134,12 +134,12 @@ const MeetOurChefs = () => {
               Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-108 animate-pulse rounded-4xl bg-white/8"
+                  className="h-108 animate-pulse rounded-4xl bg-white/[0.09]"
                 />
               ))}
 
             {!isMealsLoading && isMealsError && (
-              <article className="rounded-4xl border border-white/10 bg-white/5 p-6 text-sm leading-7 text-neutral-content/72 md:col-span-2 xl:col-span-3">
+              <article className="rounded-4xl border border-white/12 bg-white/[0.07] p-6 text-sm leading-7 text-neutral-content/72 shadow-lg md:col-span-2 xl:col-span-3">
                 Meals for this chef are not available right now.
               </article>
             )}
@@ -150,7 +150,7 @@ const MeetOurChefs = () => {
                 <Link
                   key={meal._id}
                   to={`/meal/${meal._id}`}
-                  className="group relative min-h-120 overflow-hidden rounded-4xl"
+                  className="group relative min-h-120 overflow-hidden rounded-4xl border border-white/12 shadow-lg"
                 >
                   <img
                     src={meal.foodImage}
