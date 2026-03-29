@@ -4,7 +4,7 @@ import MeetOurChefs from '../../components/Home/MeetOurChefs'
 import InnovativeRecipes from '../../components/Home/InnovativeRecipes'
 import ReviewsSection from '../../components/Home/ReviewsSection'
 import BecomeChef from '../../components/Home/BecomeChef'
-import FirstOrderQuestions from '../../components/Home/FirstOrderQuestions'
+import FrequentlyAskedQuestions from '../../components/Home/FAQ'
 
 const Home = () => {
   return (
@@ -15,7 +15,7 @@ const Home = () => {
       <InnovativeRecipes />
       <ReviewsSection />
       <BecomeChef />
-      <FirstOrderQuestions />
+      <FrequentlyAskedQuestions />
     </main>
   )
 }

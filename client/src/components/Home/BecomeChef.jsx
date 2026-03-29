@@ -16,7 +16,7 @@ const BecomeChef = () => {
 
           <div className='max-w-2xl'>
             <header className='max-w-3xl'>
-              <h2 className='text-3xl font-semibold text-base-content md:text-4xl'>
+              <h2 className='text-3xl font-semibold text-base-content md:text-5xl'>
                 Good local cooks should have a place to grow
               </h2>
               <p className='mt-4 text-sm leading-7 text-base-content/72 md:text-base'>

@@ -40,11 +40,11 @@ const InnovativeRecipes = () => {
   return (
     <section className='bg-base-200/45 py-18'>
       <Container>
-        <header className='max-w-3xl'>
-          <h2 className='text-3xl font-semibold text-base-content md:text-4xl'>
+        <header className='flex flex-col items-center text-center'>
+          <h2 className='max-w-3xl text-3xl font-semibold text-base-content md:text-5xl'>
             Innovative recipes that still feel worth ordering on a weekday
           </h2>
-          <p className='mt-4 text-sm leading-7 text-base-content/72 md:text-base'>
+          <p className='max-w-4xl mt-4 text-sm leading-7 text-base-content/72 md:text-base'>
             The strongest food platforms do not only show familiar dishes. They also
             make room for chefs who can present recipes with more personality while
             still fitting real routines.
@@ -52,7 +52,7 @@ const InnovativeRecipes = () => {
         </header>
 
         <div className='mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]'>
-          <article className='overflow-hidden rounded-[2rem] border border-base-300 bg-base-100 shadow-sm'>
+          <article className='overflow-hidden rounded-4xl border border-base-300 bg-base-100 shadow-sm'>
             <img
               src={featuredMeal.foodImage}
               alt={featuredMeal.foodName}
@@ -89,9 +89,9 @@ const InnovativeRecipes = () => {
             {otherMeals.map(meal => (
               <article
                 key={meal._id}
-                className='grid gap-4 rounded-[2rem] border border-base-300 bg-base-100 p-4 shadow-sm sm:grid-cols-[0.95fr_1.05fr] sm:items-center sm:p-5'
+                className='grid gap-4 rounded-4xl border border-base-300 bg-base-100 p-4 shadow-sm sm:grid-cols-[0.95fr_1.05fr] sm:items-center sm:p-5'
               >
-                <div className='overflow-hidden rounded-[1.5rem]'>
+                <div className='overflow-hidden rounded-3xl'>
                   <img
                     src={meal.foodImage}
                     alt={meal.foodName}

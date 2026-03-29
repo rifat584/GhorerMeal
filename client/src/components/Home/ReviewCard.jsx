@@ -6,7 +6,7 @@ const ReviewCard = ({ review }) => {
   })
 
   return (
-    <article className='flex h-full flex-col justify-between gap-8 rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg'>
+    <article className='flex h-84 flex-col justify-between gap-8 overflow-hidden rounded-4xl border border-base-300 bg-base-100 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg cursor-pointer select-none'>
       <div className='space-y-5'>
         <div className='flex items-start justify-between gap-4'>
           <div>
@@ -22,10 +22,12 @@ const ReviewCard = ({ review }) => {
           </div>
         </div>
 
-        <p className='text-base leading-8 text-base-content/72'>{review.comment}</p>
+        <p className='line-clamp-4 text-base leading-8 text-base-content/72'>
+          {review.comment}
+        </p>
       </div>
 
-      <div className='flex items-center justify-between gap-4 border-t border-base-300 pt-5'>
+      <div className='flex items-center justify-between gap-4 border-t border-base-300 pt-5 mt-auto'>
         <div className='flex items-center gap-3'>
           <img
             src={review.reviewerImage || '/ghorermeal.png'}

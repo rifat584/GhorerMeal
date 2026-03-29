@@ -17,34 +17,20 @@ const ReviewsSection = () => {
 
   if (isLoading) return <LoadingSpinner />
 
-  if (reviews.length === 0) {
-    return (
-      <section className='bg-base-100 py-18'>
-        <Container>
-          <div className='text-center'>
-            <h2 className='text-3xl font-bold text-base-content'>Customer Reviews</h2>
-            <p className='mt-4 text-base-content/65'>No reviews yet.</p>
-          </div>
-        </Container>
-      </section>
-    )
-  }
-
   return (
     <section className='bg-base-100 py-18'>
       <Container>
         <div className='mx-auto max-w-3xl text-center'>
-          <h2 className='text-3xl font-bold text-base-content md:text-4xl'>
-            What customers say after the first few orders
+          <h2 className='text-3xl font-bold text-base-content md:text-5xl'>
+           Why people come back after the first order
           </h2>
           <p className='mt-4 text-sm leading-7 text-base-content/70 md:text-base'>
-            Ratings and reviews help new customers order with more confidence and
-            help reliable cooks build stronger repeat business.
+           Ratings and written feedback make it easier to judge consistency, trust the chef behind the meal, and decide what feels worth trying first.
           </p>
         </div>
 
         <Swiper
-          modules={[Pagination, Autoplay]}
+          modules={[Autoplay, Pagination]}
           spaceBetween={24}
           slidesPerView={1}
           autoplay={{
@@ -52,7 +38,6 @@ const ReviewsSection = () => {
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          pagination={{ clickable: true }}
           className='mt-12 pb-12'
           breakpoints={{
             640: { slidesPerView: 1.1 },
@@ -61,7 +46,7 @@ const ReviewsSection = () => {
           }}
         >
           {reviews.map(review => (
-            <SwiperSlide key={review._id} className='h-auto'>
+            <SwiperSlide key={review._id} className='h-auto p-2'>
               <ReviewCard review={review} />
             </SwiperSlide>
           ))}
