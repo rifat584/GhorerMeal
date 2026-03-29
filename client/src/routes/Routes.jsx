@@ -24,6 +24,12 @@ import AllMeals from "../pages/Meals/AllMeals";
 import ChefRoute from "./ChefRoute";
 import AdminRoute from "./AdminRoute";
 import UserRoute from "./UserRoute";
+import {
+  AboutPage,
+  BecomeChefPage,
+  ContactPage,
+  HowItWorksPage,
+} from "../pages/PublicPages";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +44,22 @@ export const router = createBrowserRouter([
       {
         path: "/all-meals",
         element: <AllMeals />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/how-it-works",
+        element: <HowItWorksPage />,
+      },
+      {
+        path: "/become-a-chef",
+        element: <BecomeChefPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
       },
       {
         path: "/meal/:id",

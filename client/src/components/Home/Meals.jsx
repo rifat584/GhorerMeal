@@ -23,12 +23,15 @@ const Meals = () => {
 
   return (
     <Container>
-      {/* Sort Section */}
-      <div className="flex justify-end items-center mb-4 gap-2">
+      <div className='mt-8 flex flex-col gap-4 rounded-[1.75rem] border border-base-300 bg-base-100 p-5 shadow-sm md:flex-row md:items-center md:justify-between md:p-6'>
+        <div>
+          <p className='text-sm text-base-content/60'>Sort meals by what matters most</p>
+        </div>
+        <div className='flex flex-col gap-3 sm:flex-row'>
         <select
           value={sortBy}
           onChange={e => setSortBy(e.target.value)}
-          className="px-3 py-2 border rounded"
+            className='select w-full rounded-full border-base-300 bg-base-100 sm:w-52'
         >
           <option value="price">Price</option>
           <option value="rating">Rating</option>
@@ -39,34 +42,35 @@ const Meals = () => {
         <select
           value={order}
           onChange={e => setOrder(e.target.value)}
-          className="px-3 py-2 border rounded"
+            className='select w-full rounded-full border-base-300 bg-base-100 sm:w-44'
         >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
+          </div>
       </div>
 
-      {/* Meal Cards */}
-      <div className='pt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8'>
+      <div className='grid grid-cols-1 gap-6 pt-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
         {meals.map(meal => <Card key={meal._id} meal={meal} />)}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-3 mt-8">
+      <div className='mt-10 flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-base-300 bg-base-100 px-5 py-6 text-center shadow-sm sm:flex-row'>
         <button
           onClick={() => setPage(prev => Math.max(prev - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          className='btn btn-outline rounded-full px-6 disabled:opacity-50'
         >
           Prev
         </button>
 
-        <span>Page {page} of {totalPages}</span>
+        <span className='text-sm font-medium text-base-content/70'>
+          Page {page} of {totalPages}
+        </span>
 
         <button
           onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
           disabled={page === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          className='btn btn-primary rounded-full px-6 disabled:opacity-50'
         >
           Next
         </button>

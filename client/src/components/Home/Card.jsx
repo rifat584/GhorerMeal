@@ -2,9 +2,7 @@ import { Link } from "react-router";
 
 const Card = ({ meal }) => {
   const {
-    chefExperience,
     chefName,
-    createdAt,
     estimatedDeliveryTime,
     foodImage,
     foodName,
@@ -12,47 +10,40 @@ const Card = ({ meal }) => {
     rating,
     _id,
   } = meal;
+
   return (
-    <div className="col-span-1 cursor-pointer group shadow-xl p-3 rounded-xl">
-      <div className="flex flex-col gap-2 w-full">
-        <div
-          className="
-              aspect-square 
-              w-full 
-              relative 
-              overflow-hidden 
-              rounded-xl
-            "
-        >
+    <article className="group cursor-pointer overflow-hidden rounded-[1.75rem] border border-base-300 bg-base-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <div className="flex w-full flex-col gap-4">
+        <div className="relative aspect-square w-full overflow-hidden rounded-[1.25rem]">
           <img
-            className="
-                object-cover 
-                h-full 
-                w-full 
-                group-hover:scale-110 
-                transition
-              "
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             src={foodImage}
-            alt="Plant Image"
+            alt={foodName}
           />
-          <div
-            className="
-              absolute
-              top-3
-              right-3
-            "
-          ></div>
         </div>
-        <div className="font-semibold text-lg">Food:{foodName}</div>
-        <div className="font-semibold text-lg">Chef Name: {chefName}</div>
-        <div className="font-semibold text-lg">Delivery time: {estimatedDeliveryTime.minTime} - {estimatedDeliveryTime.maxTime} min</div>
-        <div className="font-semibold text-lg">Rating: {rating}</div>
-        <div className="flex flex-row items-center gap-1">
-          <div className="font-semibold"> Price: {price}</div>
+
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-base-content">{foodName}</h3>
+              <p className="text-sm text-base-content/60">Chef {chefName}</p>
+            </div>
+            <span className="rounded-full bg-base-200 px-3 py-1 text-sm font-semibold text-primary">
+              ৳{price}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-3 text-sm text-base-content/68">
+            <span>{estimatedDeliveryTime.minTime} to {estimatedDeliveryTime.maxTime} mins</span>
+            <span>{rating} ★ rating</span>
+          </div>
         </div>
-        <Link to={`/meal/${_id}`} className="btn btn-primary">See Details</Link>
+
+        <Link to={`/meal/${_id}`} className="btn btn-primary mt-1 w-full rounded-full">
+          See Details
+        </Link>
       </div>
-    </div>
+    </article>
   );
 };
 

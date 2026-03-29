@@ -229,6 +229,46 @@ const createServer = () => {
         const result = await usersColl.find().toArray();
         res.send(result);
       });
+
+      app.get("/home-chefs", async (req, res) => {
+        const limit = parseInt(req.query.limit) || 6;
+        const chefs = await usersColl
+          .find({ role: "chef", chefId: { $exists: true, $ne: null } })
+          .toArray();
+
+        const chefSummaries = await Promise.all(
+          chefs.map(async (chef) => {
+            const chefMeals = await mealsColl
+              .find({ chefId: chef.chefId })
+              .sort({ _id: -1 })
+              .limit(2)
+              .toArray();
+            const totalMeals = await mealsColl.countDocuments({
+              chefId: chef.chefId,
+            });
+
+            return {
+              _id: chef._id,
+              chefId: chef.chefId,
+              name: chef.name,
+              email: chef.email,
+              profileImage: chef.profileImage,
+              address: chef.address,
+              description: chef.description,
+              totalMeals,
+              featuredMeals: chefMeals.map((meal) => meal.foodName),
+            };
+          }),
+        );
+
+        const visibleChefs = chefSummaries
+          .filter((chef) => chef.totalMeals > 0)
+          .sort((firstChef, secondChef) => secondChef.totalMeals - firstChef.totalMeals)
+          .slice(0, limit);
+
+        res.send(visibleChefs);
+      });
+
       // single user
       app.get("/user/:email", async (req, res) => {
         const email = req.params.email;

@@ -1,8 +1,7 @@
 import Container from '../Container'
-import { AiOutlineMenu } from 'react-icons/ai'
-import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2'
+import { HiBars3, HiOutlineMoon, HiOutlineSun, HiXMark } from 'react-icons/hi2'
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, NavLink } from 'react-router'
 import useAuth from '../../../hooks/useAuth'
 import avatarImg from '../../../assets/images/placeholder.jpg'
 import {
@@ -11,10 +10,23 @@ import {
   setTheme,
   toggleTheme,
 } from '../../../utilitis/theme'
+import Logo from '../Logo'
+
+const publicLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'Meals', to: '/all-meals' },
+  { label: 'Become a Chef', to: '/become-a-chef' },
+  { label: 'About', to: '/about' },
+  { label: 'How It Works', to: '/how-it-works' },
+  { label: 'Contact', to: '/contact' },
+]
+
+const mobileButtonClassName =
+  'flex h-11 w-11 items-center justify-center rounded-full border border-base-300 bg-base-100 text-base-content transition hover:border-primary/40 hover:bg-base-200'
 
 const Navbar = () => {
   const { user, logOut } = useAuth()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [theme, setCurrentTheme] = useState(getTheme)
 
   const handleThemeToggle = () => {
@@ -24,102 +36,196 @@ const Navbar = () => {
   }
   const isDarkTheme = theme === DARK_THEME
 
+  const handleLogOut = async () => {
+    await logOut()
+    setIsMenuOpen(false)
+  }
+
+  const closeMenu = () => setIsMenuOpen(false)
+
+  const navLinkClassName = isActive =>
+    `inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition ${
+      isActive
+        ? 'bg-primary text-primary-content shadow-sm'
+        : 'text-base-content/70 hover:bg-base-200 hover:text-base-content'
+    }`
+
   return (
-    <div className='fixed z-10 w-full bg-base-100/90 text-base-content shadow-sm backdrop-blur transition-colors'>
-      <div className='py-4 '>
-        <Container>
-          <div className='flex flex-row  items-center justify-between gap-3 md:gap-0'>
-            
-            <Link to='/'>
-              {/* <img src={logo} alt='logo' width='100' height='100' /> */}
-              Ghorer Meal
-            </Link>
-            
-            <Link to={"all-meals"}>Meals</Link>
-            {/* Dropdown Menu */}
-            <div className='relative'>
-              <div className='flex flex-row items-center gap-3'>
+    <header className='sticky top-0 z-30 border-b border-base-300/70 bg-base-100/95 backdrop-blur transition-colors'>
+      <Container>
+        <div className='flex items-center justify-between gap-3 py-2 sm:gap-4 sm:py-2'>
+          <div className='min-w-0 flex-1 xl:flex-none'>
+            <Logo
+              className='w-fit shrink-0'
+              logoSize='h-10 w-10 sm:h-11 sm:w-11 lg:h-12 lg:w-12'
+              textSize='h-5 sm:h-6 lg:h-7'
+            />
+          </div>
+
+          <nav className='hidden lg:flex lg:items-center lg:gap-1'>
+            {publicLinks.map(link => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) => navLinkClassName(isActive)}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className='hidden shrink-0 items-center gap-3 xl:flex'>
+            <button
+              type='button'
+              onClick={handleThemeToggle}
+              className='btn btn-ghost btn-circle border border-base-300 bg-base-100 text-base-content'
+              aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
+              title={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
+            >
+              {isDarkTheme ? (
+                <HiOutlineSun className='h-5 w-5' />
+              ) : (
+                <HiOutlineMoon className='h-5 w-5' />
+              )}
+            </button>
+
+            {user ? (
+              <>
+                <Link
+                  to='/dashboard/profile'
+                  className='flex items-center gap-3 rounded-full border border-base-300 bg-base-100 px-3 py-2 transition hover:border-primary/40 hover:shadow-sm'
+                >
+                  <img
+                    className='h-10 w-10 rounded-full object-cover'
+                    referrerPolicy='no-referrer'
+                    src={user.photoURL || avatarImg}
+                    alt={user.displayName || 'User avatar'}
+                  />
+                  <div className='text-left'>
+                    <p className='text-sm font-semibold'>
+                      {user.displayName || 'My account'}
+                    </p>
+                    <p className='text-xs text-base-content/60'>Open dashboard</p>
+                  </div>
+                </Link>
                 <button
                   type='button'
-                  onClick={handleThemeToggle}
-                  className='btn btn-ghost btn-circle border border-base-300 bg-base-100 text-base-content'
-                  aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
-                  title={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
+                  onClick={handleLogOut}
+                  className='btn btn-ghost rounded-full px-5 whitespace-nowrap'
                 >
-                  {isDarkTheme ? (
-                    <HiOutlineSun className='h-5 w-5' />
-                  ) : (
-                    <HiOutlineMoon className='h-5 w-5' />
-                  )}
+                  Logout
                 </button>
-                {/* Dropdown btn */}
-                <div
-                  onClick={() => setIsOpen(!isOpen)}
-                  className='flex cursor-pointer flex-row items-center gap-3 rounded-full border border-base-300 bg-base-100 p-4 transition hover:shadow-md md:px-2 md:py-1'
+              </>
+            ) : (
+              <>
+                <Link to='/login' className='btn btn-ghost rounded-full px-5 whitespace-nowrap'>
+                  Log in
+                </Link>
+                <Link
+                  to='/signup'
+                  className='btn btn-primary rounded-full px-5 whitespace-nowrap'
                 >
-                  <AiOutlineMenu />
-                  <div className='hidden md:block'>
-                    {/* Avatar */}
-                    <img
-                      className='rounded-full'
-                      referrerPolicy='no-referrer'
-                      src={user && user.photoURL ? user.photoURL : avatarImg}
-                      alt='profile'
-                      height='30'
-                      width='30'
-                    />
-                  </div>
-                </div>
-              </div>
-              {isOpen && (
-                <div className='absolute right-0 top-12 w-[40vw] overflow-hidden rounded-xl border border-base-300 bg-base-100 text-sm text-base-content shadow-md md:w-[10vw]'>
-                  <div className='flex flex-col cursor-pointer'>
-                    <Link
-                      to='/'
-                      className='block px-4 py-3 font-semibold transition hover:bg-base-200 md:hidden'
-                    >
-                      Home
-                    </Link>
+                  Get started
+                </Link>
+              </>
+            )}
+          </div>
 
-                    {user ? (
-                      <>
-                        <Link
-                          to='/dashboard'
-                          className='px-4 py-3 font-semibold transition hover:bg-base-200'
-                        >
-                          Dashboard
-                        </Link>
-                        <div
-                          onClick={logOut}
-                          className='cursor-pointer px-4 py-3 font-semibold transition hover:bg-base-200'
-                        >
-                          Logout
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          to='/login'
-                          className='px-4 py-3 font-semibold transition hover:bg-base-200'
-                        >
-                          Login
-                        </Link>
-                        <Link
-                          to='/signup'
-                          className='px-4 py-3 font-semibold transition hover:bg-base-200'
-                        >
-                          Sign Up
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                </div>
+          <div className='flex shrink-0 items-center gap-2 xl:hidden'>
+            <button
+              type='button'
+              onClick={handleThemeToggle}
+              className={mobileButtonClassName}
+              aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
+            >
+              {isDarkTheme ? (
+                <HiOutlineSun className='h-5 w-5' />
+              ) : (
+                <HiOutlineMoon className='h-5 w-5' />
+              )}
+            </button>
+            <button
+              type='button'
+              onClick={() => setIsMenuOpen(previousValue => !previousValue)}
+              className={mobileButtonClassName}
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isMenuOpen ? (
+                <HiXMark className='h-6 w-6' />
+              ) : (
+                <HiBars3 className='h-6 w-6' />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {isMenuOpen && (
+          <div className='border-t border-base-300/70 py-4 xl:hidden'>
+            <nav className='grid gap-2'>
+              {publicLinks.map(link => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) =>
+                    `${navLinkClassName(isActive)} w-full justify-start rounded-2xl px-5 py-3`
+                  }
+                  onClick={closeMenu}
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </nav>
+
+            <div className='mt-4 grid gap-3 border-t border-base-300/70 pt-4'>
+              {user ? (
+                <>
+                  <Link
+                    to='/dashboard/profile'
+                    onClick={closeMenu}
+                    className='flex items-center gap-3 rounded-3xl border border-base-300 bg-base-100 px-4 py-3'
+                  >
+                    <img
+                      className='h-12 w-12 rounded-full object-cover'
+                      referrerPolicy='no-referrer'
+                      src={user.photoURL || avatarImg}
+                      alt={user.displayName || 'User avatar'}
+                    />
+                    <div>
+                      <p className='font-semibold'>{user.displayName || 'My account'}</p>
+                      <p className='text-sm text-base-content/60'>View dashboard</p>
+                    </div>
+                  </Link>
+                  <button
+                    type='button'
+                    onClick={handleLogOut}
+                    className='btn btn-primary w-full rounded-full'
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to='/login'
+                    onClick={closeMenu}
+                    className='btn btn-ghost w-full rounded-full'
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    to='/signup'
+                    onClick={closeMenu}
+                    className='btn btn-primary w-full rounded-full'
+                  >
+                    Get started
+                  </Link>
+                </>
               )}
             </div>
           </div>
-        </Container>
-      </div>
-    </div>
+        )}
+      </Container>
+    </header>
   )
 }
 

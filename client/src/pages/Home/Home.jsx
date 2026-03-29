@@ -1,20 +1,23 @@
-
-import { Link } from "react-router";
-import Hero from "../../components/Home/Hero";
-import DailyMeals from "../../components/Home/DailyMeals";
-import ReviewsSection from "../../components/Home/ReviewsSection";
-import WhyChooseUs from "../../components/Home/WhyChooseUs";
-
+import Hero from '../../components/Home/Hero'
+import DailyMeals from '../../components/Home/DailyMeals'
+import MeetOurChefs from '../../components/Home/MeetOurChefs'
+import InnovativeRecipes from '../../components/Home/InnovativeRecipes'
+import ReviewsSection from '../../components/Home/ReviewsSection'
+import BecomeChef from '../../components/Home/BecomeChef'
+import FrequentlyAskedQuestions from '../../components/Home/FAQ'
 
 const Home = () => {
   return (
-<div>
-  <Hero/>
-  <DailyMeals/>
-  <ReviewsSection/>
-  <WhyChooseUs/>
-</div>
-  );
-};
+    <main className='bg-base-100'>
+      <Hero />
+      <DailyMeals />
+      <MeetOurChefs />
+      <InnovativeRecipes />
+      <ReviewsSection />
+      <BecomeChef />
+      <FrequentlyAskedQuestions />
+    </main>
+  )
+}
 
-export default Home;
+export default Home
