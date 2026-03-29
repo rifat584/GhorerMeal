@@ -10,7 +10,7 @@ const Logo = ({
     <Link
       to='/'
       aria-label='Ghorer Meal home'
-      className={`flex min-w-0 items-center gap-2 ${className}`.trim()}
+      className={`flex min-w-0 items-center gap-1 ${className}`.trim()}
     >
       <img
         src='/ghorermeal.png'
