@@ -11,4 +11,5 @@ scripts/reviewSeedUtils.test.js
 scripts/seedMeals.js
 scripts/seedReviews.js
 *.test.*
+docs/superpowers
 

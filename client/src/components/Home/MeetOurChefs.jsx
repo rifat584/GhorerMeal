@@ -29,12 +29,13 @@ const MeetOurChefs = () => {
     data: chefs = [],
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["home-chefs"],
     queryFn: async () => queryFetch("home-chefs?limit=6"),
   });
 
-  const selectedChef = chefs[activeChefIndex] || chefs[0];
+  const selectedChef = chefs[activeChefIndex] || chefs[0] || null;
 
   const {
     data: selectedChefMeals = [],
@@ -45,7 +46,7 @@ const MeetOurChefs = () => {
     enabled: !!selectedChef?.chefId,
     queryFn: async () => {
       const meals = await queryFetch(`my-meal/${selectedChef.chefId}`);
-      return meals.slice(0, 3);
+      return Array.isArray(meals) ? meals.slice(0, 3) : [];
     },
   });
 
@@ -60,7 +61,24 @@ const MeetOurChefs = () => {
               Meet Our Top Chefs
             </h2>
             <p className="mt-5 text-sm leading-7 text-neutral-content/72 md:text-base">
-              Chef profiles are not available right now.
+              {error?.message || "Chef profiles are not available right now."}
+            </p>
+          </div>
+        </Container>
+      </section>
+    );
+  }
+
+  if (!selectedChef) {
+    return (
+      <section className="bg-neutral py-20 text-neutral-content lg:py-24">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-semibold md:text-5xl">
+              Meet Our Top Chefs
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-neutral-content/72 md:text-base">
+              Chef profiles will appear here after cooks publish meals.
             </p>
           </div>
         </Container>
@@ -143,6 +161,14 @@ const MeetOurChefs = () => {
                 Meals for this chef are not available right now.
               </article>
             )}
+
+            {!isMealsLoading &&
+              !isMealsError &&
+              selectedChefMeals.length === 0 && (
+                <article className="rounded-4xl border border-white/12 bg-white/[0.07] p-6 text-sm leading-7 text-neutral-content/72 shadow-lg md:col-span-2 xl:col-span-3">
+                  This chef has not published any meals yet.
+                </article>
+              )}
 
             {!isMealsLoading &&
               !isMealsError &&

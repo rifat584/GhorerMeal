@@ -10,12 +10,51 @@ import LoadingSpinner from '../Shared/LoadingSpinner'
 import Container from '../Shared/Container'
 
 const ReviewsSection = () => {
-  const { data: reviews = [], isLoading } = useQuery({
+  const {
+    data: reviews = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ['reviews'],
     queryFn: async () => queryFetch('reviews'),
   })
 
   if (isLoading) return <LoadingSpinner />
+
+  if (isError) {
+    return (
+      <section className='bg-base-200/40 py-20 lg:py-24'>
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='text-3xl font-bold text-base-content md:text-5xl'>
+              Why people come back after the first order
+            </h2>
+            <p className='mt-4 text-sm leading-7 text-base-content/70 md:text-base'>
+              {error?.message || 'Reviews are not available right now.'}
+            </p>
+          </div>
+        </Container>
+      </section>
+    )
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <section className='bg-base-200/40 py-20 lg:py-24'>
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='text-3xl font-bold text-base-content md:text-5xl'>
+              Why people come back after the first order
+            </h2>
+            <p className='mt-4 text-sm leading-7 text-base-content/70 md:text-base'>
+              Reviews will show up here after customers start sharing feedback.
+            </p>
+          </div>
+        </Container>
+      </section>
+    )
+  }
 
   return (
     <section className='bg-base-200/40 py-20 lg:py-24'>

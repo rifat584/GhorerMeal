@@ -5,12 +5,51 @@ import queryFetch from "../../utilitis/queryFetch";
 import Container from "../Shared/Container";
 
 const DailyMeals = () => {
-  const { data: meals, isLoading } = useQuery({
+  const {
+    data: meals = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["meals"],
     queryFn: async () => queryFetch("meals"),
   });
 
   if (isLoading) return <LoadingSpinner />;
+
+  if (isError) {
+    return (
+      <section className="bg-base-200/40 py-20 lg:py-24">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold text-base-content md:text-5xl">
+              Popular meals people are ordering right now
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-base-content/70 md:text-base">
+              {error?.message || "Meals are not available right now."}
+            </p>
+          </div>
+        </Container>
+      </section>
+    );
+  }
+
+  if (meals.length === 0) {
+    return (
+      <section className="bg-base-200/40 py-20 lg:py-24">
+        <Container>
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-3xl font-bold text-base-content md:text-5xl">
+              Popular meals people are ordering right now
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-base-content/70 md:text-base">
+              Meals will appear here after chefs publish their menus.
+            </p>
+          </div>
+        </Container>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-base-200/40 py-20 lg:py-24">

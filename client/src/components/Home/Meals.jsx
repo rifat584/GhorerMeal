@@ -11,7 +11,7 @@ const Meals = () => {
   const [order, setOrder] = useState("desc")
   const limit = 6
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['allMeals', page, sortBy, order],
     queryFn: async () =>
       queryFetch(`all-meals?page=${page}&limit=${limit}&sortBy=${sortBy}&order=${order}`),
@@ -19,7 +19,34 @@ const Meals = () => {
 
   if (isLoading) return <LoadingSpinner />
 
-  const { data: meals, totalPages } = data
+  if (isError) {
+    return (
+      <Container>
+        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-100 p-6 text-center shadow-sm'>
+          <h2 className='text-2xl font-semibold text-base-content'>Meals are not available right now</h2>
+          <p className='mt-3 text-sm leading-7 text-base-content/70 md:text-base'>
+            {error?.message || 'Please try again when the API is available.'}
+          </p>
+        </div>
+      </Container>
+    )
+  }
+
+  const meals = data?.data || []
+  const totalPages = data?.totalPages || 1
+
+  if (meals.length === 0) {
+    return (
+      <Container>
+        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-100 p-6 text-center shadow-sm'>
+          <h2 className='text-2xl font-semibold text-base-content'>No meals have been published yet</h2>
+          <p className='mt-3 text-sm leading-7 text-base-content/70 md:text-base'>
+            Check back after local chefs add a few dishes to the menu.
+          </p>
+        </div>
+      </Container>
+    )
+  }
 
   return (
     <Container>
