@@ -1,183 +1,154 @@
-import { Link, Navigate, useLocation, useNavigate } from "react-router";
-import toast from "react-hot-toast";
-import LoadingSpinner from "../../components/Shared/LoadingSpinner";
-import useAuth from "../../hooks/useAuth";
-import { FcGoogle } from "react-icons/fc";
-import { TbFidgetSpinner } from "react-icons/tb";
-import { useForm } from "react-hook-form";
-import axios from "axios";
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
+import toast from 'react-hot-toast'
+import { FcGoogle } from 'react-icons/fc'
+import { TbFidgetSpinner } from 'react-icons/tb'
+import { useForm } from 'react-hook-form'
+import axios from 'axios'
+import LoadingSpinner from '../../components/Shared/LoadingSpinner'
+import AuthShell from '../../components/Shared/AuthShell'
+import useAuth from '../../hooks/useAuth'
+
+const inputClassName =
+  'w-full rounded-2xl border border-base-300 bg-base-200/55 px-4 py-3 text-base-content outline-none transition placeholder:text-base-content/35 focus:border-primary/60 focus:bg-base-100'
+
 const Login = () => {
-  const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const from = location.state || "/";
+  const from = location.state || '/'
 
-  // react-hook form
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm()
 
-  if (loading) return <LoadingSpinner />;
-  if (user) return <Navigate to={from} replace={true} />;
+  if (loading) return <LoadingSpinner />
+  if (user) return <Navigate to={from} replace />
 
-  // form submit handler
   const loginWithEmail = async (data) => {
-    const { email, password } = data;
+    const { email, password } = data
 
     try {
-      //User Login
-      await signIn(email, password);
-
-      navigate(from, { replace: true });
-      toast.success("Login Successful");
+      await signIn(email, password)
+      navigate(from, { replace: true })
+      toast.success('Login successful')
     } catch (err) {
-      // console.log(err)
-      setLoading(false);
-      toast.error(err?.message);
+      setLoading(false)
+      toast.error(err?.message)
     }
-  };
+  }
 
-  // Handle Google Signin
   const handleGoogleSignIn = async () => {
     try {
-      //User Registration using google
-      const res = await signInWithGoogle();
-      navigate(from, { replace: true });
-      toast.success("Login Successful");
-      const user = res.user;
-      // save user to DB
+      const response = await signInWithGoogle()
+      const signedInUser = response.user
       const userData = {
-        name: user?.displayName,
-        email: user?.email,
-        profileImage: user?.photoURL,
-        address: "N/A",
-        role: "user",
-        status: "active",
-        createdAt: new Date().toISOString,
-      };
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users`, userData);
+        name: signedInUser?.displayName,
+        email: signedInUser?.email,
+        profileImage: signedInUser?.photoURL,
+        address: 'N/A',
+        role: 'user',
+        status: 'active',
+        createdAt: new Date().toISOString(),
+      }
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users`, userData)
+      navigate(from, { replace: true })
+      toast.success('Login successful')
     } catch (err) {
-      console.log(err);
-      setLoading(false);
-      toast.error(err?.message);
+      setLoading(false)
+      toast.error(err?.message)
     }
-  };
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
-        <div className="mb-8 text-center">
-          <h1 className="my-3 text-4xl font-bold">Log In</h1>
-          <p className="text-sm text-gray-400">
-            Sign in to access your account
-          </p>
-        </div>
-        <form
-          onSubmit={handleSubmit(loginWithEmail)}
-          noValidate=""
-          action=""
-          className="space-y-6 ng-untouched ng-pristine ng-valid"
-        >
-          {/* email field */}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block mb-2 text-sm">
-                Email address
-              </label>
-              <input
-                type="email"
-                {...register("email", {
-                  required: { value: true, message: "Please enter your email" },
-                })}
-                id="email"
-                required
-                placeholder="Enter Your Email Here"
-                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900"
-                data-temp-mail-org="0"
-              />
-              {errors.email && (
-                <p className="text-sm text-error mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <div className="flex justify-between">
-                <label htmlFor="password" className="text-sm mb-2">
-                  Password
-                </label>
-              </div>
-              <input
-                type="password"
-                {...register("password", {
-                  required: {
-                    value: true,
-                    message: "Please enter your password",
-                  },
-                })}
-                autoComplete="current-password"
-                id="password"
-                required
-                placeholder="*******"
-                className="w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900"
-              />
-              {errors.password && (
-                <p className="text-sm text-error mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-          </div>
+  }
 
-          <div>
+  return (
+    <AuthShell
+      title='Sign in to your Ghorer Meal account'
+      imageSrc='/hero.jpg'
+      imageAlt='A plated home-style meal with rice, vegetables, and fresh toppings'
+    >
+      <form onSubmit={handleSubmit(loginWithEmail)} className='space-y-5' noValidate>
+        <div>
+          <label htmlFor='email' className='mb-2 block text-sm font-medium text-base-content/80'>
+            Email address
+          </label>
+          <input
+            id='email'
+            type='email'
+            autoComplete='email'
+            placeholder='Enter your email'
+            className={inputClassName}
+            {...register('email', {
+              required: { value: true, message: 'Please enter your email' },
+            })}
+          />
+          {errors.email && <p className='mt-2 text-sm text-error'>{errors.email.message}</p>}
+        </div>
+
+        <div>
+          <div className='mb-2 flex items-center justify-between gap-3'>
+            <label htmlFor='password' className='block text-sm font-medium text-base-content/80'>
+              Password
+            </label>
             <button
-              type="submit"
-              className="bg-lime-500 w-full rounded-md py-3 text-white"
+              type='button'
+              className='text-sm text-base-content/60 transition hover:text-primary'
             >
-              {loading ? (
-                <TbFidgetSpinner className="animate-spin m-auto" />
-              ) : (
-                "Continue"
-              )}
+              Forgot password?
             </button>
           </div>
-        </form>
-        <div className="space-y-1">
-          <button className="text-xs hover:underline hover:text-lime-500 text-gray-400 cursor-pointer">
-            Forgot password?
-          </button>
+          <input
+            id='password'
+            type='password'
+            autoComplete='current-password'
+            placeholder='Enter your password'
+            className={inputClassName}
+            {...register('password', {
+              required: {
+                value: true,
+                message: 'Please enter your password',
+              },
+            })}
+          />
+          {errors.password && (
+            <p className='mt-2 text-sm text-error'>{errors.password.message}</p>
+          )}
         </div>
-        <div className="flex items-center pt-4 space-x-1">
-          <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
-          <p className="px-3 text-sm dark:text-gray-400">
-            Login with social accounts
-          </p>
-          <div className="flex-1 h-px sm:w-16 dark:bg-gray-700"></div>
-        </div>
-        <div
-          onClick={handleGoogleSignIn}
-          className="flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer"
+
+        <button
+          type='submit'
+          disabled={loading}
+          className='btn btn-primary h-13 w-full rounded-full border-0 text-base'
         >
-          <FcGoogle size={32} />
+          {loading ? <TbFidgetSpinner className='animate-spin text-xl' /> : 'Sign in'}
+        </button>
+      </form>
 
-          <p>Continue with Google</p>
-        </div>
-        <p className="px-6 text-sm text-center text-gray-400">
-          Don&apos;t have an account yet?{" "}
-          <Link
-            state={from}
-            to="/signup"
-            className="hover:underline hover:text-lime-500 text-gray-600"
-          >
-            Sign up
-          </Link>
-          .
-        </p>
+      <div className='my-6 flex items-center gap-4'>
+        <div className='h-px flex-1 bg-base-300' />
+        <p className='text-sm text-base-content/55'>or continue with Google</p>
+        <div className='h-px flex-1 bg-base-300' />
       </div>
-    </div>
-  );
-};
 
-export default Login;
+      <button
+        type='button'
+        onClick={handleGoogleSignIn}
+        disabled={loading}
+        className='flex h-13 w-full items-center justify-center gap-3 rounded-full border border-base-300 bg-base-100 px-5 text-base font-medium text-base-content transition hover:bg-base-200'
+      >
+        <FcGoogle className='text-2xl' />
+        <span>Continue with Google</span>
+      </button>
+
+      <p className='mt-6 text-center text-sm text-base-content/65'>
+        Don&apos;t have an account yet?{' '}
+        <Link state={from} to='/signup' className='font-semibold text-primary transition hover:opacity-80'>
+          Create one
+        </Link>
+      </p>
+    </AuthShell>
+  )
+}
+
+export default Login
