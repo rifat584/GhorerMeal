@@ -1,124 +1,132 @@
-import { useForm } from "react-hook-form";
-import useAuth from "../../hooks/useAuth";
-import axios from "axios";
-import uploadImage from "../../utilitis/uploadImage";
-import { toast, Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
-import queryFetch from "../../utilitis/queryFetch";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
-import useRole from "../../hooks/useRole";
+import useAuth from "../../hooks/useAuth";
+import queryFetch from "../../utilitis/queryFetch";
+import uploadImage from "../../utilitis/uploadImage";
 
+const inputClassName =
+  "w-full rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-sm text-base-content outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/10";
+
+const readOnlyClassName =
+  "w-full rounded-2xl border border-base-300 bg-base-200/70 px-4 py-3 text-sm text-base-content/70";
 
 const CreateMealForm = () => {
   const { user } = useAuth();
-  // tanstack query
-  const { data:userData, isLoading: isUserLoading } = useQuery({
+  const { data: userData, isLoading: isUserLoading } = useQuery({
     queryKey: ["user", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => queryFetch(`user/${user?.email}`),
   });
 
-  console.log(userData);
   const {
     register,
     handleSubmit,
-    reset: resetForm,
+    reset,
     formState: { errors },
   } = useForm();
 
-  const handleMealSubmit = async (data) => {
-    const {
-      foodName,
-      chefName,
-      ingredients,
-      estimatedDeliveryTime,
-      price,
-      rating,
-      chefExperience,
-      foodImage,
-      chefId,
-    } = data;
-
-    const deliverytime = estimatedDeliveryTime.split("-");
-    const minTime = Number(deliverytime[0]);
-    const maxTime = Number(deliverytime[1].trim());
+  const handleMealSubmit = async formData => {
+    const deliveryTimeParts = formData.estimatedDeliveryTime.split("-");
+    const minTime = Number(deliveryTimeParts[0]);
+    const maxTime = Number(deliveryTimeParts[1].trim());
 
     try {
-      const photoUpload = await uploadImage(foodImage);
-      const foodData = {
-        foodName,
-        chefName,
-        chefId,
-        ingredients: ingredients.split(","),
+      const foodImage = await uploadImage(formData.foodImage);
+
+      const mealData = {
+        foodName: formData.foodName,
+        chefName: formData.chefName,
+        chefId: formData.chefId,
+        ingredients: formData.ingredients
+          .split(",")
+          .map(item => item.trim())
+          .filter(Boolean),
         estimatedDeliveryTime: { minTime, maxTime },
-        price: Number(price),
-        rating: Number(rating),
-        chefExperience: Number(chefExperience),
-        foodImage: photoUpload,
+        price: Number(formData.price),
+        rating: Number(formData.rating),
+        chefExperience: Number(formData.chefExperience),
+        foodImage,
         createdAt: new Date().toISOString(),
       };
-      console.log(foodData);
-      const mealSubmit = await axios.post(
+
+      const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/meals`,
-        foodData
+        mealData
       );
-      const res = await mealSubmit.data.insertedId;
-      if (res) {
-        toast.success("Meal Added Successfully");
-        resetForm();
+
+      if (response.data.insertedId) {
+        toast.success("Meal added successfully");
+        reset();
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.error("Could not create the meal right now");
     }
   };
+
   if (isUserLoading) return <LoadingSpinner />;
+
   return (
-    <div className="w-full min-h-[calc(100vh-40px)] flex justify-center items-center bg-gray-50 text-gray-800 rounded-xl">
-      <form
-        onSubmit={handleSubmit(handleMealSubmit)}
-        className="w-full max-w-5xl bg-white p-8 rounded-xl shadow-md"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          <div className="space-y-6">
-            {/* Meal Name */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">Food Name</label>
+    <div className="rounded-[1.75rem] border border-base-300/70 bg-base-100 p-5 shadow-sm sm:p-6">
+      <form onSubmit={handleSubmit(handleMealSubmit)} className="space-y-8">
+        <div className="grid gap-6 xl:grid-cols-[1.2fr,0.95fr]">
+          <section className="space-y-6 rounded-[1.5rem] bg-base-200/45 p-5">
+            <div>
+              <h2 className="text-xl font-semibold text-base-content">
+                Meal details
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-base-content/65">
+                Add enough detail for customers to understand the dish quickly
+                without making the listing feel crowded.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Food name
+              </label>
               <input
                 type="text"
                 {...register("foodName", {
-                  required: { value: true, message: "Food Name is required" },
+                  required: { value: true, message: "Food name is required" },
                 })}
                 placeholder="Enter food name"
-                className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                className={inputClassName}
               />
               {errors.foodName && (
-                <p className="mt-1 text-red-500"> {errors.foodName.message}</p>
+                <p className="text-sm text-error">{errors.foodName.message}</p>
               )}
             </div>
 
-            {/* Chef Name */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">Chef Name</label>
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Chef name
+              </label>
               <input
                 type="text"
+                defaultValue={userData?.name}
                 {...register("chefName", {
-                  required: { value: true, message: "Chef Name is required" }, value:userData?.name
+                  required: { value: true, message: "Chef name is required" },
                 })}
                 placeholder="Chef full name"
-                className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                className={inputClassName}
               />
               {errors.chefName && (
-                <p className="mt-1 text-red-500"> {errors.chefName.message}</p>
+                <p className="text-sm text-error">{errors.chefName.message}</p>
               )}
             </div>
 
-            {/* Ingredients */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">Ingredients</label>
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Ingredients
+              </label>
               <textarea
                 {...register("ingredients", {
                   required: {
                     value: true,
-                    message: "ingredient Names are required",
+                    message: "Ingredient names are required",
                   },
                   pattern: {
                     value:
@@ -127,20 +135,18 @@ const CreateMealForm = () => {
                   },
                 })}
                 placeholder="List ingredients separated by commas"
-                className="w-full h-32 px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                className={`${inputClassName} min-h-36`}
               />
               {errors.ingredients && (
-                <p className="mt-1 text-red-500">
-                  {" "}
+                <p className="text-sm text-error">
                   {errors.ingredients.message}
                 </p>
               )}
             </div>
 
-            {/* Estimated Delivery Time */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">
-                Estimated Delivery Time
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Estimated delivery time
               </label>
               <input
                 type="text"
@@ -151,143 +157,160 @@ const CreateMealForm = () => {
                   },
                   pattern: {
                     value: /^\d+\s*-\s*\d+$/,
-                    message: "Estimate time should be in this format (30-45)",
+                    message: "Use this format: 30-45",
                   },
                 })}
                 placeholder="e.g. 30-45 minutes"
-                className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                className={inputClassName}
               />
               {errors.estimatedDeliveryTime && (
-                <p className="mt-1 text-red-500">
-                  {" "}
+                <p className="text-sm text-error">
                   {errors.estimatedDeliveryTime.message}
                 </p>
               )}
             </div>
-          </div>
+          </section>
 
-          {/* RIGHT COLUMN */}
-          <div className="space-y-6">
-            {/* Price & Rating */}
-            <div className="flex gap-4">
-              <div className="w-1/2 space-y-1 text-sm">
-                <label className="block text-gray-600">Price</label>
+          <section className="space-y-6 rounded-[1.5rem] bg-base-200/45 p-5">
+            <div>
+              <h2 className="text-xl font-semibold text-base-content">
+                Pricing and delivery
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-base-content/65">
+                Keep prices realistic, delivery windows honest, and the listing
+                ready for real customer orders.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 text-sm">
+                <label className="font-medium text-base-content/75">Price</label>
                 <input
                   type="number"
                   {...register("price", {
                     required: {
                       value: true,
-                      message: "Meal Price is required",
+                      message: "Meal price is required",
                     },
                     min: { value: 1, message: "Price can't be lower than 1" },
                   })}
                   placeholder="BDT"
-                  className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                  className={inputClassName}
                 />
                 {errors.price && (
-                  <p className="mt-1 text-red-500"> {errors.price.message}</p>
+                  <p className="text-sm text-error">{errors.price.message}</p>
                 )}
               </div>
 
-              <div className="w-1/2 space-y-1 text-sm">
-                <label className="block text-gray-600">Rating</label>
+              <div className="space-y-2 text-sm">
+                <label className="font-medium text-base-content/75">
+                  Rating
+                </label>
                 <input
                   type="number"
                   {...register("rating", {
                     required: {
                       value: true,
-                      message: "Meal Rating is required",
+                      message: "Meal rating is required",
                     },
                     min: { value: 1, message: "Rating can't be lower than 1" },
                     max: { value: 5, message: "Rating can't exceed 5" },
                   })}
                   step="0.1"
                   placeholder="1 - 5"
-                  className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                  className={inputClassName}
                 />
                 {errors.rating && (
-                  <p className="mt-1 text-red-500"> {errors.rating.message}</p>
+                  <p className="text-sm text-error">{errors.rating.message}</p>
                 )}
               </div>
             </div>
 
-            {/* Chef Experience */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">
-                Chef's Experience (Years)
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Chef experience (years)
               </label>
               <input
                 type="number"
                 {...register("chefExperience", {
                   required: {
                     value: true,
-                    message: "Chef Experience is required",
+                    message: "Chef experience is required",
                   },
                   min: { value: 0, message: "Experience can't be negative" },
                 })}
                 placeholder="Years of experience"
-                className="w-full px-4 py-3 border border-lime-300 rounded-md focus:outline-lime-500"
+                className={inputClassName}
               />
               {errors.chefExperience && (
-                <p className="mt-1 text-red-500">
-                  {" "}
+                <p className="text-sm text-error">
                   {errors.chefExperience.message}
                 </p>
               )}
             </div>
 
-            {/* Chef ID (Read Only) */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">Chef ID</label>
-              <input
-                type="text"
-                {...register("chefId", {value: userData?.chefId})}
-                
-                readOnly
-                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
-              />
-            </div>
-
-            {/* User Email (Read Only) */}
-            <div className="space-y-1 text-sm">
-              <label className="block text-gray-600">User Email</label>
-              <input
-                type="email"
-                name="email"
-                value={userData?.email}
-                readOnly
-                className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed"
-              />
-            </div>
-
-            {/* Food Image Upload */}
-            <div className="p-4 border-4 border-dotted border-gray-300 rounded-lg">
-              <label className="flex flex-col items-center cursor-pointer">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2 text-sm">
+                <label className="font-medium text-base-content/75">
+                  Chef ID
+                </label>
                 <input
-                  type="file"
-                  {...register("foodImage", {
-                    required: {
-                      value: true,
-                      message: "Food Image is required",
-                    },
-                  })}
-                  accept="image/*"
-                  hidden
+                  type="text"
+                  defaultValue={userData?.chefId}
+                  {...register("chefId")}
+                  readOnly
+                  className={readOnlyClassName}
                 />
-                <span className="bg-lime-500 text-white px-4 py-2 rounded font-semibold">
-                  Upload Food Image
-                </span>
-              </label>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <label className="font-medium text-base-content/75">
+                  User email
+                </label>
+                <input
+                  type="email"
+                  value={userData?.email}
+                  readOnly
+                  className={readOnlyClassName}
+                />
+              </div>
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full p-3 text-white font-medium rounded-md bg-lime-500 hover:bg-lime-600 transition"
-            >
-              Save & Continue
+            <div className="rounded-[1.5rem] border border-dashed border-base-300 bg-base-100 px-5 py-6">
+              <div className="space-y-2 text-sm">
+                <label className="font-medium text-base-content/75">
+                  Food image
+                </label>
+                <label className="flex cursor-pointer flex-col items-center gap-3 rounded-[1.25rem] bg-base-200/60 px-4 py-6 text-center">
+                  <input
+                    type="file"
+                    {...register("foodImage", {
+                      required: {
+                        value: true,
+                        message: "Food image is required",
+                      },
+                    })}
+                    accept="image/*"
+                    hidden
+                  />
+                  <span className="btn btn-outline rounded-full">
+                    Upload food image
+                  </span>
+                  <span className="max-w-sm text-xs leading-6 text-base-content/60">
+                    Use one clear image that makes the meal feel real and easy
+                    to trust at first glance.
+                  </span>
+                </label>
+                {errors.foodImage && (
+                  <p className="text-sm text-error">{errors.foodImage.message}</p>
+                )}
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary w-full rounded-full">
+              Save meal
             </button>
-          </div>
+          </section>
         </div>
       </form>
     </div>

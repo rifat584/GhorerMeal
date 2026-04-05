@@ -1,9 +1,10 @@
-import React from 'react';
+import { Link } from 'react-router'
 import FavoriteMealForm from '../../../components/Form/FavoriteMealForm';
 import {useQuery} from '@tanstack/react-query'
 import useAuth from '../../../hooks/useAuth';
 import queryFetch from '../../../utilitis/queryFetch';
 import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
+import { DashboardPage, DashboardTable } from '../../../components/Dashboard/DashboardUI';
 
 const FavoriteMeal = () => {
   const {user}= useAuth();
@@ -13,61 +14,30 @@ const FavoriteMeal = () => {
     queryFn: ()=> queryFetch(`favorite-meal/${user?.email}`)
   })
   if(isLoading) return <LoadingSpinner/>
-  console.log(favoriteMeals);
-  return (
-    <>
-      <div className='container mx-auto px-4 sm:px-8'>
-        <div className='py-8'>
-          <div className='-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto'>
-            <div className='inline-block min-w-full shadow rounded-lg overflow-hidden'>
-              <table className='min-w-full leading-normal'>
-                <thead>
-                  <tr>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Meal Name
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Chef Name
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Price
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Date Added
-                    </th>
 
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Delete
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    favoriteMeals.map(favorite=> <FavoriteMealForm key={favorite._id} favorite={favorite} />)
-                  }
-                 
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+  return (
+    <DashboardPage
+      title='Favorite meals'
+      description='Save dishes that feel worth coming back to, then review them here when you are ready to order again.'
+    >
+      <DashboardTable
+        title='Saved list'
+        countLabel='Favorite'
+        columns={['Meal', 'Chef', 'Saved on', 'Actions']}
+        rowCount={favoriteMeals.length}
+        emptyTitle='No saved meals yet'
+        emptyDescription='When you favorite meals while browsing, they will show up here for quick access.'
+        emptyAction={
+          <Link to='/all-meals' className='btn btn-primary rounded-full'>
+            Explore meals
+          </Link>
+        }
+      >
+        {favoriteMeals.map(favorite => (
+          <FavoriteMealForm key={favorite._id} favorite={favorite} />
+        ))}
+      </DashboardTable>
+    </DashboardPage>
   );
 };
 

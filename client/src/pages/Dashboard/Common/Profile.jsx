@@ -4,6 +4,12 @@ import queryFetch from "../../../utilitis/queryFetch";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 import axios from "axios";
 import toast from "react-hot-toast";
+import {
+  DashboardActionLink,
+  DashboardBadge,
+  DashboardPage,
+  DashboardPanel,
+} from "../../../components/Dashboard/DashboardUI";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -34,7 +40,7 @@ const Profile = () => {
         toast.success("Request has been sent!");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Could not send request");
     }
   };
   const handleAdminRole = async () => {
@@ -48,77 +54,99 @@ const Profile = () => {
         toast.success("Request has been sent!");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Could not send request");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
-      <div className="card w-full max-w-lg bg-base-100 shadow-xl">
-        {/* Header */}
-        <div className="card-body items-center text-center">
-          <div className="avatar">
-            <div className="w-24 rounded-full ring ring-secondary ring-offset-base-100 ring-offset-2">
-              <img src={profileImage} alt="Profile" />
+    <DashboardPage
+      title="Your profile"
+      description="Review the account details tied to your dashboard access and request the next role when you are ready for it."
+      action={<DashboardActionLink to="/all-meals">Browse meals</DashboardActionLink>}
+    >
+      <DashboardPanel className="mx-auto w-full max-w-3xl">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-[1.75rem] bg-base-200">
+              <img src={profileImage} alt={name} className="h-full w-full object-cover" />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-base-content">
+                  {name}
+                </h2>
+                <p className="text-sm text-base-content/65">{email}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <DashboardBadge tone="primary">{role}</DashboardBadge>
+                <DashboardBadge tone={status === "active" ? "success" : "warning"}>
+                  {status}
+                </DashboardBadge>
+              </div>
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold mt-2">{name}</h2>
-          <p className="text-sm text-gray-500">{email}</p>
-
-          <div className="badge badge-outline mt-1 capitalize">{role}</div>
-
-          <div
-            className={`badge mt-2 ${
-              status === "active" ? "badge-success" : "badge-error"
-            }`}
-          >
-            {status}
-          </div>
-        </div>
-
-        {/* Info Section */}
-        <div className="px-6 pb-6 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="font-medium">Address</span>
-            <span className="text-gray-600">{address}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="font-medium">Role</span>
-            <span className="capitalize">{role}</span>
-          </div>
-
-          {role === "chef" && (
-            <div className="flex justify-between">
-              <span className="font-medium">Chef ID</span>
-              <span>{chefId}</span>
+          <dl className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[1.25rem] bg-base-200/60 p-4">
+              <dt className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+                Address
+              </dt>
+              <dd className="mt-2 text-sm leading-7 text-base-content/80">
+                {address || "No address added yet"}
+              </dd>
             </div>
-          )}
-        </div>
 
-        {/* Actions */}
-        <div className="card-actions px-6 pb-6 gap-2">
-          {role !== "chef" && role !== "admin" && (
-            <button
-              onClick={handleChefRole}
-              className="btn btn-primary btn-sm flex-1"
-            >
-              Be a Chef
-            </button>
-          )}
+            <div className="rounded-[1.25rem] bg-base-200/60 p-4">
+              <dt className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+                Current role
+              </dt>
+              <dd className="mt-2 text-sm capitalize text-base-content/80">{role}</dd>
+            </div>
+
+            {role === "chef" && (
+              <div className="rounded-[1.25rem] bg-base-200/60 p-4 sm:col-span-2">
+                <dt className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+                  Chef ID
+                </dt>
+                <dd className="mt-2 text-sm text-base-content/80">{chefId}</dd>
+              </div>
+            )}
+          </dl>
 
           {role !== "admin" && (
-            <button
-              onClick={handleAdminRole}
-              className="btn btn-outline btn-sm flex-1"
-            >
-              Be an Admin
-            </button>
+            <div className="border-t border-base-300 pt-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-base-content">Role access</h3>
+                  <p className="mt-2 text-sm leading-7 text-base-content/70">
+                    Send a request when you are ready to unlock more dashboard tools.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {role !== "chef" && role !== "admin" && (
+                    <button onClick={handleChefRole} className="btn btn-primary rounded-full">
+                      Request chef access
+                    </button>
+                  )}
+
+                  {role !== "admin" && (
+                    <button
+                      onClick={handleAdminRole}
+                      className="btn btn-outline rounded-full"
+                    >
+                      Request admin access
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
-      </div>
-    </div>
+      </DashboardPanel>
+    </DashboardPage>
   );
 };
 

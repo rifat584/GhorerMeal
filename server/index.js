@@ -367,16 +367,54 @@ const createServer = () => {
       app.patch("/order/change-status/:id", async (req, res) => {
         const id = req.params.id;
         const { status } = req.query;
+        const allowedStatus = ["accepted", "cancelled", "delivered"];
 
-        const query = {
-          _id: new ObjectId(id),
-        };
-        const update = {
+        if (!allowedStatus.includes(status)) {
+          return res.status(400).json({ message: "Invalid order status" });
+        }
+
+        const query = { _id: new ObjectId(id) };
+        const order = await ordersColl.findOne(query);
+
+        if (!order) {
+          return res.status(404).json({ message: "Order not found" });
+        }
+
+        const canAcceptOrder =
+          order.orderStatus === "pending" && status === "accepted";
+        const canCancelOrder =
+          order.orderStatus === "pending" && status === "cancelled";
+        const canDeliverOrder =
+          order.orderStatus === "accepted" &&
+          order.paymentStatus === "paid" &&
+          status === "delivered";
+
+        if (!canAcceptOrder && !canCancelOrder && !canDeliverOrder) {
+          const message =
+            status === "delivered" && order.paymentStatus !== "paid"
+              ? "Order must be paid before delivery"
+              : "This order cannot move to that status right now";
+
+          return res.status(400).json({ message });
+        }
+
+        const result = await ordersColl.updateOne(query, {
           $set: {
             orderStatus: status,
           },
-        };
-        const result = await ordersColl.updateOne(query, update);
+        });
+        res.send(result);
+      });
+
+      app.patch("/meal/:id", async (req, res) => {
+        const id = req.params.id;
+        const mealData = req.body;
+        const result = await mealsColl.updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: mealData,
+          },
+        );
         res.send(result);
       });
 

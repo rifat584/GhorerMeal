@@ -1,52 +1,89 @@
-import { useState } from "react";
-import DeleteModal from "../../Modal/DeleteModal";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
-const CustomerOrderDataRow = ({order}) => {
-  // console.log(order);
-  const {estimatedDeliveryTime, chefName, mealName, orderStatus, orderTime, paymentStatus, price, quantity, userAddress, userEmail, _id}= order;
-  
-  const {mutate:handlePayment } = useMutation({
-    mutationFn: ()=> axios.post(`${import.meta.env.VITE_API_BASE_URL}/create-checkout-session`, order),
-    onSuccess: data=>{
-      window.location.href= data.data.url
+import {
+  DashboardBadge,
+  dashboardActionButtonClassName,
+  dashboardTableCellClassName,
+} from "../DashboardUI";
+
+const statusTone = {
+  pending: "warning",
+  accepted: "primary",
+  delivered: "success",
+  cancelled: "danger",
+};
+
+const formatDate = dateValue => dateValue?.split("T")[0] || "No date";
+
+const CustomerOrderDataRow = ({ order }) => {
+  const canPayNow =
+    order.orderStatus === "accepted" && order.paymentStatus !== "paid";
+
+  const { mutate: handlePayment } = useMutation({
+    mutationFn: () =>
+      axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/create-checkout-session`,
+        order
+      ),
+    onSuccess: response => {
+      window.location.href = response.data.url;
     },
-    onError: error=>{
-      toast.error(error.response.data.error);
-    }
-  })
-
-
+    onError: error => {
+      toast.error(error.response?.data?.error || "Could not start payment");
+    },
+  });
 
   return (
-    <tr>
-      <td className="font-medium">{mealName}</td>
-
-      <td>
-        <span className="badge badge-warning capitalize">{orderStatus}</span>
+    <tr className="border-t border-base-300/60">
+      <td
+        className={`${dashboardTableCellClassName} min-w-[14rem] whitespace-normal`}
+      >
+        <p className="font-semibold text-base-content">{order.mealName}</p>
+        <p className="mt-1 text-sm text-base-content/60">
+          Quantity {order.quantity} · {order.price} TK
+        </p>
       </td>
 
-      <td>{price} TK</td>
-
-      <td>{quantity}</td>
-
-      <td>{estimatedDeliveryTime?.minTime} - {estimatedDeliveryTime?.maxTime} mins</td>
-
-      <td>{chefName}</td>
-
-      <td>chef-2116</td>
-
-      <td>
-        <span className="badge badge-outline capitalize">{paymentStatus}</span>
+      <td className={dashboardTableCellClassName}>
+        <p className="text-base-content/75">
+          {order.estimatedDeliveryTime?.minTime} -{" "}
+          {order.estimatedDeliveryTime?.maxTime} mins
+        </p>
+        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-base-content/45">
+          Ordered {formatDate(order.orderTime)}
+        </p>
       </td>
 
-      <td className="text-right">
+      <td className={dashboardTableCellClassName}>
+        <p className="font-medium text-base-content">{order.chefName}</p>
+        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-base-content/45">
+          {order.chefId}
+        </p>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+       <DashboardBadge tone={statusTone[order.orderStatus] || "neutral"}>
+            {order.orderStatus}
+          </DashboardBadge>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        
+          <DashboardBadge tone={statusTone[order.paymentStatus] || "neutral"}>
+            {order.paymentStatus}
+          </DashboardBadge>
+
+      </td>
+
+      <td className={dashboardTableCellClassName}>
         <button
-        onClick={handlePayment}
-        className="btn btn-xs btn-primary"
-        disabled={orderStatus==="pending" || orderStatus==="delivered" || paymentStatus==="paid"}
-        >Pay</button>
+          onClick={handlePayment}
+          className={dashboardActionButtonClassName}
+          disabled={!canPayNow}
+        >
+          Pay now
+        </button>
       </td>
     </tr>
   );

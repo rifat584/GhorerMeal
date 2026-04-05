@@ -1,66 +1,61 @@
 import { useState } from "react";
 import UpdateUserRoleModal from "../../Modal/UpdateUserRoleModal";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import toast from "react-hot-toast";
+import {
+  DashboardBadge,
+  dashboardSecondaryButtonClassName,
+  dashboardTableCellClassName,
+} from "../DashboardUI";
 
 const UserDataRow = ({ user }) => {
-  let [isOpen, setIsOpen] = useState(false);
-  const closeModal = () => setIsOpen(false);
-  const queryClient = useQueryClient();
-  const { email, status, _id, role } = user;
-
-  const { mutate: handleFraudUser } = useMutation({
-    mutationFn: (id) =>
-      axios.patch(`${import.meta.env.VITE_API_BASE_URL}/user/fraud/${id}`),
-    onSuccess: (data) => {
-      console.log(data);
-      toast.success("user has been marked as fraud!");
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <tr>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{email}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{role}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="">{status}</p>
+    <tr className="border-t border-base-300/60">
+      <td className={dashboardTableCellClassName}>
+        <p className="font-semibold text-base-content">{user.name || user.email}</p>
+        <p className="mt-1 text-sm text-base-content/60">{user.email}</p>
       </td>
 
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        {role !== "admin" && (
+      <td className={dashboardTableCellClassName}>
+        <DashboardBadge
+          tone={
+            user.role === "admin"
+              ? "warning"
+              : user.role === "chef"
+                ? "success"
+                : "primary"
+          }
+        >
+          {user.role}
+        </DashboardBadge>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        <DashboardBadge tone={user.status === "active" ? "success" : "warning"}>
+          {user.status}
+        </DashboardBadge>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        {user.role !== "admin" ? (
           <>
-            <span
+            <button
+              type="button"
               onClick={() => setIsOpen(true)}
-              className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
+              className={dashboardSecondaryButtonClassName}
             >
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
-              ></span>
-
-              <span className="relative">Update Role</span>
-            </span>
-            {/* Modal */}
+              Update role
+            </button>
             <UpdateUserRoleModal
               isOpen={isOpen}
-              closeModal={closeModal}
-              role="user"
-              email={email}
+              closeModal={() => setIsOpen(false)}
+              role={user.role}
+              email={user.email}
             />
           </>
+        ) : (
+          <p className="text-sm text-base-content/55">Protected account</p>
         )}
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="btn btn-outline" onClick={() => handleFraudUser(_id)}>
-          Fraud
-        </p>
       </td>
     </tr>
   );

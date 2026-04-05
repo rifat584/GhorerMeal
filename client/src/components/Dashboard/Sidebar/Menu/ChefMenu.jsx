@@ -5,19 +5,21 @@ import { IoFastFoodSharp } from "react-icons/io5";
 import { PiChefHatFill } from "react-icons/pi";
 
 import MenuItem from './MenuItem'
-const ChefMenu = () => {
+const ChefMenu = ({ onNavigate }) => {
   return (
     <>
       <MenuItem
         icon={PiChefHatFill}
         label='Create Meal'
         address='create-meal'
+        onClick={onNavigate}
       />
-      <MenuItem icon={IoFastFoodSharp} label='My Meals' address='my-meals' />
+      <MenuItem icon={IoFastFoodSharp} label='My Meals' address='my-meals' onClick={onNavigate} />
       <MenuItem
         icon={MdAddBusiness}
         label='Order Requests'
         address='order-requests'
+        onClick={onNavigate}
       />
     </>
   )

@@ -1,66 +1,76 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import {
+  DashboardBadge,
+  dashboardActionButtonClassName,
+  dashboardDangerButtonClassName,
+  dashboardTableCellClassName,
+} from "../DashboardUI";
 
 const ManageRequestRow = ({ userRole, refetch }) => {
-  const { userEmail, requestStatus, requestType } = userRole;
-
   const handleAcceptUserRole = async () => {
     try {
-      const acceptRequest = await axios.patch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/user/${userEmail}?role=${requestType}`
+      const acceptedRole = await axios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/user/${userRole.userEmail}?role=${userRole.requestType}`
       );
-      if (acceptRequest.data.role === requestType) {
+
+      if (acceptedRole.data.role === userRole.requestType) {
         await axios.delete(
-          `${import.meta.env.VITE_API_BASE_URL}/role/${userEmail}`
+          `${import.meta.env.VITE_API_BASE_URL}/role/${userRole.userEmail}`
         );
-        toast.success(`${userEmail} has been set to ${requestType}`);
+        toast.success(`${userRole.userEmail} is now ${userRole.requestType}`);
         refetch();
       }
-    } catch (error) {
-      toast.error(error.message);
-      console.log(error);
+    } catch {
+      toast.error("Could not update the request");
     }
   };
+
   const handleRejectUserRole = async () => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/role/${userEmail}`
+        `${import.meta.env.VITE_API_BASE_URL}/role/${userRole.userEmail}`
       );
-      toast.error("User's request has been denied!");
+      toast.success("Request rejected");
       refetch();
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+    } catch {
+      toast.error("Could not reject the request");
     }
   };
 
   return (
-    <tr>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{userEmail}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{requestType}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="">{requestStatus}</p>
+    <tr className="border-t border-base-300/60">
+      <td className={dashboardTableCellClassName}>
+        <p className="font-semibold text-base-content">{userRole.userEmail}</p>
       </td>
 
-      <td className="px-5 py-5 text-sm space-x-3">
-        <button
-          className="btn btn-active btn-success text-white border-none"
-          onClick={handleAcceptUserRole}
+      <td className={dashboardTableCellClassName}>
+        <DashboardBadge
+          tone={userRole.requestType === "admin" ? "warning" : "success"}
         >
-          Accept
-        </button>
-        <button
-          className="btn btn-active btn-error text-white border-none"
-          onClick={handleRejectUserRole}
-        >
-          Reject
-        </button>
+          {userRole.requestType}
+        </DashboardBadge>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        <DashboardBadge tone="warning">{userRole.requestStatus}</DashboardBadge>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className={dashboardActionButtonClassName}
+            onClick={handleAcceptUserRole}
+          >
+            Accept
+          </button>
+          <button
+            className={dashboardDangerButtonClassName}
+            onClick={handleRejectUserRole}
+          >
+            Reject
+          </button>
+        </div>
       </td>
     </tr>
   );

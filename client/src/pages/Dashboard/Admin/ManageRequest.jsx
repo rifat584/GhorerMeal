@@ -4,6 +4,7 @@ import useAuth from "../../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import queryFetch from "../../../utilitis/queryFetch";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
+import { DashboardPage, DashboardTable } from "../../../components/Dashboard/DashboardUI";
 
 const ManageRequest = () => {
   const { user } = useAuth();
@@ -14,53 +15,33 @@ const ManageRequest = () => {
   });
   if (isLoading) return <LoadingSpinner />;
 
-  return (
-    <div className="container mx-auto px-4 sm:px-8">
-      <div className="py-8">
-        <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-          <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
-            <table className="min-w-full leading-normal">
-              <thead>
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
-                  >
-                    Email
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
-                  >
-                    Role
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
-                  >
-                    Status
-                  </th>
+  const totalRequests = data.length
+  const chefRequests = data.filter(request => request.requestType === "chef").length
+  const adminRequests = data.filter(request => request.requestType === "admin").length
 
-                  <th
-                    scope="col"
-                    className="px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal"
-                  >
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  data.map(userRole=>
-                    <ManageRequestRow userRole={userRole} key={userRole._id} refetch={refetch}/>
-                  )
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+  return (
+    <DashboardPage
+      title="Role requests"
+      description="Review the access requests submitted through user profiles and decide which role changes should go through."
+      metrics={[
+        { label: "Total requests", value: totalRequests, helper: "All role requests waiting in the dashboard.", tone: "primary" },
+        { label: "Chef requests", value: chefRequests, helper: "Users asking for chef access.", tone: "success" },
+        { label: "Admin requests", value: adminRequests, helper: "Users asking for admin access.", tone: "warning" },
+      ]}
+    >
+      <DashboardTable
+        title="Pending role requests"
+        countLabel="Request"
+        columns={["Requester", "Request type", "Status", "Actions"]}
+        rowCount={data.length}
+        emptyTitle="No pending role requests"
+        emptyDescription="New chef and admin access requests will show up here."
+      >
+        {data.map(userRole => (
+          <ManageRequestRow userRole={userRole} key={userRole._id} refetch={refetch} />
+        ))}
+      </DashboardTable>
+    </DashboardPage>
   );
 };
 

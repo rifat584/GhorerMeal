@@ -3,6 +3,7 @@ import CustomerOrderDataRow from "../../../components/Dashboard/TableRows/Custom
 import useAuth from "../../../hooks/useAuth";
 import queryFetch from "../../../utilitis/queryFetch";
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
+import { DashboardPage, DashboardTable } from "../../../components/Dashboard/DashboardUI";
 
 const MyOrders = () => {
   const { user } = useAuth();
@@ -12,32 +13,37 @@ const MyOrders = () => {
     queryFn: () => queryFetch(`order/${user?.email}`),
   });
   if (isLoading) return <LoadingSpinner />;
-  console.log(orderData);
+
+  const totalOrders = orderData.length
+  const paidOrders = orderData.filter(order => order.paymentStatus === "paid").length
+  const duePayment = orderData.filter(order => order.paymentStatus !== "paid").length
+  const activeDelivery = orderData.filter(
+    order => order.orderStatus === "pending" || order.orderStatus === "accepted"
+  ).length
 
   return (
-    <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
-      <table className="table table-zebra w-full">
-        <thead>
-          <tr>
-            <th>Food Name</th>
-            <th>Status</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Delivery Time</th>
-            <th>Chef Name</th>
-            <th>Chef ID</th>
-            <th>Payment</th>
-            <th className="text-right">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {
-            orderData.map(order=><CustomerOrderDataRow order={order} key={order._id}/>)
-          }
-        </tbody>
-      </table>
-    </div>
+    <DashboardPage
+      title="My orders"
+      description="Follow each order from payment to delivery and keep an eye on anything that still needs action from you."
+      metrics={[
+        { label: "Total orders", value: totalOrders, helper: "Every order placed from your account.", tone: "primary" },
+        { label: "Paid orders", value: paidOrders, helper: "Orders that already completed payment.", tone: "success" },
+        { label: "Need payment", value: duePayment, helper: "Orders that still require payment before completion.", tone: "warning" },
+        { label: "Active delivery", value: activeDelivery, helper: "Orders that are still pending or in progress.", tone: "neutral" },
+      ]}
+    >
+      <DashboardTable
+        title="Order history"
+        columns={["Meal", "Delivery", "Chef", "Status", "Payment", "Actions"]}
+        rowCount={orderData.length}
+        emptyTitle="No orders yet"
+        emptyDescription="Once you order a meal, the full order history will show up here."
+      >
+        {orderData.map(order => (
+          <CustomerOrderDataRow order={order} key={order._id} />
+        ))}
+      </DashboardTable>
+    </DashboardPage>
   );
 };
 
