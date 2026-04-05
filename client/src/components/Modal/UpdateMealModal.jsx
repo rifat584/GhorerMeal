@@ -6,37 +6,34 @@ const UpdateMealModal = ({ setIsEditModalOpen, isOpen, meal }) => {
     <Dialog
       open={isOpen}
       as='div'
-      className='relative z-10 focus:outline-none '
+      className='relative z-50 focus:outline-none'
       onClose={() => setIsEditModalOpen(false)}
     >
-      <div className='fixed inset-0 z-10 w-screen overflow-y-auto'>
-        <div className='flex min-h-full items-center justify-center p-4'>
-          <DialogPanel
-            transition
-            className='w-full max-w-2xl rounded-[1.75rem] border border-base-300/70 bg-base-100 p-6 shadow-xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0'
-          >
-            <div className='flex justify-end'>
-              <button
-                onClick={() => setIsEditModalOpen(false)}
-                className='inline-flex h-10 w-10 items-center justify-center rounded-full border border-base-300 bg-base-100 text-base-content/70 transition hover:text-error'
+      <div className='fixed inset-0 bg-base-content/45 backdrop-blur-sm' />
+
+      <div className='fixed inset-0 flex items-center justify-center p-4'>
+        <DialogPanel
+          transition
+          className='w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-2xl duration-200 ease-out data-closed:scale-95 data-closed:opacity-0 sm:p-7'
+        >
+          <div className='space-y-6'>
+            <header className='space-y-3'>
+              <DialogTitle
+                as='h3'
+                className='text-2xl font-semibold tracking-tight text-base-content'
               >
-                X
-              </button>
-            </div>
-            <DialogTitle
-              as='h3'
-              className='text-center text-2xl font-semibold tracking-tight text-base-content'
-            >
-              Update meal
-            </DialogTitle>
-            <p className='mt-2 text-center text-sm leading-7 text-base-content/65'>
-              Change the saved meal details without leaving the table view.
-            </p>
-            <div className='mt-6 w-full'>
+                Update meal
+              </DialogTitle>
+              <p className='text-sm leading-7 text-base-content/70'>
+                Refresh the details for this listing and save the update from here.
+              </p>
+            </header>
+
+            <div className='w-full'>
               <UpdateMealForm meal={meal} closeModal={() => setIsEditModalOpen(false)} />
             </div>
-          </DialogPanel>
-        </div>
+          </div>
+        </DialogPanel>
       </div>
     </Dialog>
   )

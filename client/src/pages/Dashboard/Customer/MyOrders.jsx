@@ -16,7 +16,9 @@ const MyOrders = () => {
 
   const totalOrders = orderData.length
   const paidOrders = orderData.filter(order => order.paymentStatus === "paid").length
-  const duePayment = orderData.filter(order => order.paymentStatus !== "paid").length
+  const duePayment = orderData.filter(
+    order => order.orderStatus === "accepted" && order.paymentStatus !== "paid"
+  ).length
   const activeDelivery = orderData.filter(
     order => order.orderStatus === "pending" || order.orderStatus === "accepted"
   ).length
