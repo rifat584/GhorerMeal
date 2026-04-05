@@ -59,8 +59,8 @@ const Footer = () => {
               Contact
             </p>
             <div className='mt-4 space-y-3 text-sm text-base-content/75'>
-              <p>hello@ghorermeal.com</p>
-              <p>+880 1712-345678</p>
+              <p>contactwithrifat@gmail.com</p>
+              <p>+880 1980 185 004</p>
               <p>Dhanmondi, Dhaka</p>
               <p>Every day, 9:00 AM to 10:00 PM</p>
             </div>

@@ -99,7 +99,7 @@ const Navbar = () => {
             {user ? (
               <>
                 <Link
-                  to='/dashboard/profile'
+                  to='/dashboard/'
                   className='flex items-center gap-3 rounded-full border border-base-300 bg-base-100 px-3 py-2 transition hover:border-primary/40 hover:shadow-sm'
                 >
                   <img

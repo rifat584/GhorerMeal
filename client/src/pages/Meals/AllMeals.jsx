@@ -1,5 +1,4 @@
 import Meals from '../../components/Home/Meals'
-import Container from '../../components/Shared/Container'
 
 const AllMeals = () => {
   return (
