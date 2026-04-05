@@ -20,7 +20,7 @@ const DashboardLayout = () => {
     user: '/dashboard/my-orders',
   }
 
-  if (location.pathname === '/dashboard') {
+  if (location.pathname === '/dashboard/') {
     if (isLoading) return <LoadingSpinner />
 
     return (
