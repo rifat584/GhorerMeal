@@ -3,6 +3,7 @@ import { HiBars3, HiOutlineMoon, HiOutlineSun, HiXMark } from 'react-icons/hi2'
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router'
 import useAuth from '../../../hooks/useAuth'
+import useRole from '../../../hooks/useRole'
 import avatarImg from '../../../assets/images/placeholder.jpg'
 import {
   DARK_THEME,
@@ -16,8 +17,8 @@ const publicLinks = [
   { label: 'Home', to: '/' },
   { label: 'Meals', to: '/all-meals' },
   { label: 'Become a Chef', to: '/become-a-chef' },
-  { label: 'About', to: '/about' },
   { label: 'How It Works', to: '/how-it-works' },
+  { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ]
 
@@ -26,8 +27,14 @@ const mobileButtonClassName =
 
 const Navbar = () => {
   const { user, logOut } = useAuth()
+  const { role, isRoleLoading } = useRole()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [theme, setCurrentTheme] = useState(getTheme)
+  const showBecomeChefLink =
+    !user || (!isRoleLoading && role !== 'chef' && role !== 'admin')
+  const visibleLinks = showBecomeChefLink
+    ? publicLinks
+    : publicLinks.filter(link => link.to !== '/become-a-chef')
 
   const handleThemeToggle = () => {
     const nextTheme = toggleTheme(theme)
@@ -63,7 +70,7 @@ const Navbar = () => {
           </div>
 
           <nav className='hidden lg:flex lg:items-center lg:gap-1'>
-            {publicLinks.map(link => (
+            {visibleLinks.map(link => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -162,7 +169,7 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className='border-t border-base-300/70 py-4 xl:hidden'>
             <nav className='grid gap-2'>
-              {publicLinks.map(link => (
+              {visibleLinks.map(link => (
                 <NavLink
                   key={link.to}
                   to={link.to}

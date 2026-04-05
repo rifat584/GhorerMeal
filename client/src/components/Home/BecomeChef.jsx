@@ -1,7 +1,18 @@
 import { Link } from 'react-router'
 import Container from '../Shared/Container'
+import useAuth from '../../hooks/useAuth'
+import useRole from '../../hooks/useRole'
 
 const BecomeChef = () => {
+  const { user } = useAuth()
+  const { role, isRoleLoading } = useRole()
+  const showSection =
+    !user || (!isRoleLoading && role !== 'chef' && role !== 'admin')
+
+  if (!showSection) {
+    return null
+  }
+
   return (
     <section className='bg-base-200/40 py-20 lg:py-24'>
       <Container>
