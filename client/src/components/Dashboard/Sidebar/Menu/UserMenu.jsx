@@ -7,7 +7,7 @@ import { IoMdPersonAdd } from "react-icons/io";
 import MenuItem from './MenuItem'
 import { useState } from 'react'
 import BecomeSellerModal from '../../../Modal/BecomeSellerModal'
-const UserMenu = () => {
+const UserMenu = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const closeModal = () => {
@@ -16,17 +16,17 @@ const UserMenu = () => {
 
   return (
     <>
-      <MenuItem icon={PiListNumbersFill} label='My Orders' address='my-orders' />
-      <MenuItem icon={MdReviews} label='My Review' address='my-review' />
-      <MenuItem icon={BsCalendarHeartFill} label='Favorite Meal' address='favorite-meal' />
+      <MenuItem icon={PiListNumbersFill} label='My Orders' address='my-orders' onClick={onNavigate} />
+      <MenuItem icon={MdReviews} label='My Review' address='my-review' onClick={onNavigate} />
+      <MenuItem icon={BsCalendarHeartFill} label='Favorite Meal' address='favorite-meal' onClick={onNavigate} />
 
       <div
         onClick={() => setIsOpen(true)}
-        className='flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform text-gray-600  hover:bg-gray-300   hover:text-gray-700 cursor-pointer'
+        className='mt-1 flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-neutral-content/70 transition hover:bg-neutral-content/10 hover:text-neutral-content'
       >
         <IoMdPersonAdd className='w-5 h-5' />
 
-        <span className='mx-4 font-medium'>Become A Seller</span>
+        <span>Become A Seller</span>
       </div>
 
       <BecomeSellerModal closeModal={closeModal} isOpen={isOpen} />

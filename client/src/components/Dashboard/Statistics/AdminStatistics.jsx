@@ -1,87 +1,139 @@
-import { FaUserAlt, FaDollarSign } from 'react-icons/fa'
-import { BsFillCartPlusFill, BsFillHouseDoorFill } from 'react-icons/bs'
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from 'recharts'
-import LoadingSpinner from '../../Shared/LoadingSpinner'
+} from "recharts";
+import LoadingSpinner from "../../Shared/LoadingSpinner";
+import {
+  DashboardEmptyState,
+  DashboardPanel,
+} from "../DashboardUI";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+const chartColors = ["#8dbb3c", "#c86a48"];
 
 const fetchDashboardData = async () => {
-  const [usersRes, ordersRes] = await Promise.all([
+  const [usersResponse, ordersResponse] = await Promise.all([
     axios.get(`${import.meta.env.VITE_API_BASE_URL}/users`),
-    axios.get(`${import.meta.env.VITE_API_BASE_URL}/orders`)
-  ])
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/orders`),
+  ]);
 
-  const users = usersRes.data
-  const orders = ordersRes.data
+  const users = usersResponse.data;
+  const orders = ordersResponse.data;
 
-  const totalUsers = users.length
-  const ordersPending = orders.filter(o => o.orderStatus !== 'delivered').length
-  const ordersDelivered = orders.filter(o => o.orderStatus === 'delivered').length
-  const totalRevenue = orders.reduce((acc, o) => acc + (o.price || 0), 0)
-
-  return { totalUsers, ordersPending, ordersDelivered, totalRevenue }
-}
+  return {
+    totalUsers: users.length,
+    ordersPending: orders.filter(order => order.orderStatus !== "delivered")
+      .length,
+    ordersDelivered: orders.filter(order => order.orderStatus === "delivered")
+      .length,
+    totalRevenue: orders.reduce(
+      (total, order) => total + Number(order.price || 0),
+      0
+    ),
+  };
+};
 
 const AdminStatistics = () => {
   const { data: summary, isLoading } = useQuery({
-    queryKey: ['dashboardData'],
-    queryFn: fetchDashboardData
-  })
+    queryKey: ["dashboardData"],
+    queryFn: fetchDashboardData,
+  });
 
-  if (isLoading) return <LoadingSpinner/>
-  if (!summary) return <div>No data available</div>
+  if (isLoading) return <LoadingSpinner />;
 
-  const paymentsData = [
-    { name: 'Pending', amount: summary.ordersPending },
-    { name: 'Delivered', amount: summary.ordersDelivered }
-  ]
+  if (!summary) {
+    return (
+      <DashboardEmptyState
+        title="No dashboard data available"
+        description="Statistics will appear here once the platform has enough users and orders to summarize."
+      />
+    );
+  }
 
-  const revenueData = [
-    { name: 'Revenue', amount: summary.totalRevenue }
-  ]
+  const ordersData = [
+    { name: "Pending", amount: summary.ordersPending },
+    { name: "Delivered", amount: summary.ordersDelivered },
+  ];
+
+  const revenueData = [{ name: "Revenue", amount: summary.totalRevenue }];
 
   return (
-    <div className="mt-12">
-      <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <StatCard icon={<FaDollarSign />} label="Total Revenue" value={`$${summary.totalRevenue}`} bgFrom="orange-600" bgTo="orange-400" />
-        <StatCard icon={<BsFillCartPlusFill />} label="Orders Pending" value={summary.ordersPending} bgFrom="blue-600" bgTo="blue-400" />
-        <StatCard icon={<BsFillHouseDoorFill />} label="Orders Delivered" value={summary.ordersDelivered} bgFrom="pink-600" bgTo="pink-400" />
-        <StatCard icon={<FaUserAlt />} label="Total Users" value={summary.totalUsers} bgFrom="green-600" bgTo="green-400" />
-      </div>
-
-      <div className="mb-4 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        <div className="bg-white shadow-md rounded-xl p-4 xl:col-span-2">
-          <h4 className="text-lg font-semibold mb-4">Revenue Overview</h4>
+    <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+      <DashboardPanel
+        title="Revenue overview"
+        description="A quick look at how much paid order value has moved through the platform so far."
+      >
+        <div className="h-[19rem]">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={revenueData}>
-              <XAxis dataKey="name" />
-              <YAxis />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
               <Tooltip />
-              <Bar dataKey="amount" fill="#FF8042" />
+              <Bar dataKey="amount" fill="#c86a48" radius={[12, 12, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white shadow-md rounded-xl p-4">
-          <h4 className="text-lg font-semibold mb-4">Orders Overview</h4>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[1.25rem] bg-base-200/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+              Total revenue
+            </p>
+            <p className="mt-3 text-3xl font-semibold text-base-content">
+              {summary.totalRevenue} TK
+            </p>
+          </div>
+
+          <div className="rounded-[1.25rem] bg-base-200/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+              Orders pending
+            </p>
+            <p className="mt-3 text-3xl font-semibold text-base-content">
+              {summary.ordersPending}
+            </p>
+          </div>
+
+          <div className="rounded-[1.25rem] bg-base-200/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+              Orders delivered
+            </p>
+            <p className="mt-3 text-3xl font-semibold text-base-content">
+              {summary.ordersDelivered}
+            </p>
+          </div>
+        </div>
+      </DashboardPanel>
+
+      <DashboardPanel
+        title="Order split"
+        description="A cleaner view of how many orders still need attention versus how many are already complete."
+      >
+        <div className="h-[19rem]">
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
-              <Pie data={paymentsData} dataKey="amount" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                {paymentsData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Pie
+                data={ordersData}
+                dataKey="amount"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label
+              >
+                {ordersData.map((entry, index) => (
+                  <Cell
+                    key={`${entry.name}-${index}`}
+                    fill={chartColors[index % chartColors.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
@@ -89,21 +141,21 @@ const AdminStatistics = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </div>
-    </div>
-  )
-}
 
-const StatCard = ({ icon, label, value, bgFrom, bgTo }) => (
-  <div className="relative flex flex-col bg-white rounded-xl shadow-md">
-    <div className={`absolute -mt-4 mx-4 grid h-16 w-16 place-items-center rounded-xl bg-linear-to-tr from-${bgFrom} to-${bgTo} text-white shadow-lg`}>
-      {icon}
+        <div className="mt-4 rounded-[1.25rem] bg-base-200/60 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-base-content/45">
+            Total users
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-base-content">
+            {summary.totalUsers}
+          </p>
+          <p className="mt-2 text-sm leading-7 text-base-content/65">
+            The current member count includes customers, chefs, and admins.
+          </p>
+        </div>
+      </DashboardPanel>
     </div>
-    <div className="p-4 text-right">
-      <p className="text-sm text-blue-gray-600">{label}</p>
-      <h4 className="text-2xl font-semibold text-blue-gray-900">{value}</h4>
-    </div>
-  </div>
-)
+  );
+};
 
-export default AdminStatistics
+export default AdminStatistics;

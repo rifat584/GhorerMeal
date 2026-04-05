@@ -1,61 +1,55 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import React from "react";
+import toast from "react-hot-toast";
+import {
+  DashboardBadge,
+  dashboardDangerButtonClassName,
+  dashboardTableCellClassName,
+} from "../Dashboard/DashboardUI";
 
 const MyReviewForm = ({ review, user }) => {
-  console.log(review);
   const queryClient = useQueryClient();
-  const { foodName, rating, comment, date, _id } = review;
 
   const { mutate: handleDeleteReview } = useMutation({
-    mutationFn: (id) =>
+    mutationFn: id =>
       axios.delete(`${import.meta.env.VITE_API_BASE_URL}/review/${id}`),
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
+      toast.success("Review removed");
       queryClient.invalidateQueries({ queryKey: ["reviews", user?.email] });
     },
-    onError: (err) => console.log(err),
+    onError: () => toast.error("Could not delete the review"),
   });
 
-
-
-
   return (
-    <tr>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{foodName}</p>
+    <tr className="border-t border-base-300/60">
+      <td
+        className={`${dashboardTableCellClassName} min-w-[14rem] whitespace-normal`}
+      >
+        <p className="font-semibold text-base-content">{review.foodName}</p>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{rating}</p>
+
+      <td className={dashboardTableCellClassName}>
+        <DashboardBadge tone="warning">{review.rating}/5</DashboardBadge>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{comment}</p>
+
+      <td
+        className={`${dashboardTableCellClassName} min-w-[18rem] whitespace-normal`}
+      >
+        <p className="leading-6 text-base-content/75">{review.comment}</p>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{date.split("T")[0]}</p>
+
+      <td className={dashboardTableCellClassName}>
+        <p className="text-base-content/75">{review.date.split("T")[0]}</p>
       </td>
-      {/* update */}
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 bg-red-200 opacity-50 rounded-full"
-          ></span>
-          <span className="relative">Update</span>
-        </span>
-      </td>
-      {/* DELETE REVIEW */}
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span
-          onClick={() => handleDeleteReview(_id)}
-          className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
+
+      <td className={dashboardTableCellClassName}>
+        <button
+          type="button"
+          onClick={() => handleDeleteReview(review._id)}
+          className={dashboardDangerButtonClassName}
         >
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 bg-red-200 opacity-50 rounded-full"
-          ></span>
-          <span className="relative">Delete</span>
-        </span>
+          Delete
+        </button>
       </td>
     </tr>
   );

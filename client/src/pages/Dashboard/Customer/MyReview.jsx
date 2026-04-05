@@ -1,9 +1,10 @@
-import React from 'react';
+import { Link } from 'react-router'
 import queryFetch from '../../../utilitis/queryFetch';
 import useAuth from '../../../hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
 import MyReviewForm from '../../../components/Form/MyReviewForm';
+import { DashboardPage, DashboardTable } from '../../../components/Dashboard/DashboardUI';
 
 const MyReview = () => {
     const {user}= useAuth();
@@ -13,69 +14,30 @@ const MyReview = () => {
     queryFn: ()=> queryFetch(`review/${user?.email}`)
   })
   if(isLoading) return <LoadingSpinner/>
-  console.log(MyReviews);
-
 
   return (
-   <>
-      <div className='container mx-auto px-4 sm:px-8'>
-        <div className='py-8'>
-          <div className='-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto'>
-            <div className='inline-block min-w-full shadow rounded-lg overflow-hidden'>
-              <table className='min-w-full leading-normal'>
-                <thead>
-                  <tr>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Meal Name
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Rating
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Comment
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Date
-                    </th>
-
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Update
-                    </th>
-                    <th
-                      scope='col'
-                      className='px-5 py-3 bg-white  border-b border-gray-200 text-gray-800  text-left text-sm uppercase font-normal'
-                    >
-                      Delete
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    MyReviews.map(review=> <MyReviewForm key={review._id} review={review} user={user} />)
-                  }
-                 
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+    <DashboardPage
+      title='My reviews'
+      description='Look back at the feedback you have already left and remove anything that no longer reflects your experience.'
+    >
+      <DashboardTable
+        title='Review history'
+        countLabel='Review'
+        columns={['Meal', 'Rating', 'Comment', 'Date', 'Actions']}
+        rowCount={MyReviews.length}
+        emptyTitle='No reviews yet'
+        emptyDescription='Once you review meals you have ordered, the full history will appear here.'
+        emptyAction={
+          <Link to='/all-meals' className='btn btn-primary rounded-full'>
+            Browse meals
+          </Link>
+        }
+      >
+        {MyReviews.map(review => (
+          <MyReviewForm key={review._id} review={review} user={user} />
+        ))}
+      </DashboardTable>
+    </DashboardPage>
   );
 };
 

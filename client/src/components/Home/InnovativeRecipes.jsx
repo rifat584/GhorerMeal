@@ -21,7 +21,7 @@ const buildIngredientText = ingredients => {
 }
 
 const InnovativeRecipes = () => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['innovative-recipes'],
     queryFn: async () =>
       queryFetch('all-meals?page=1&limit=3&sortBy=rating&order=desc'),
@@ -29,10 +29,40 @@ const InnovativeRecipes = () => {
 
   if (isLoading) return <LoadingSpinner />
 
+  if (isError) {
+    return (
+      <section className='bg-base-200/40 py-20 lg:py-24'>
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='text-3xl font-semibold text-base-content md:text-5xl'>
+              Innovative recipes that still feel worth ordering on a weekday
+            </h2>
+            <p className='mt-4 text-sm leading-7 text-base-content/72 md:text-base'>
+              {error?.message || 'Featured recipes are not available right now.'}
+            </p>
+          </div>
+        </Container>
+      </section>
+    )
+  }
+
   const meals = data?.data || []
 
   if (meals.length === 0) {
-    return null
+    return (
+      <section className='bg-base-200/40 py-20 lg:py-24'>
+        <Container>
+          <div className='mx-auto max-w-3xl text-center'>
+            <h2 className='text-3xl font-semibold text-base-content md:text-5xl'>
+              Innovative recipes that still feel worth ordering on a weekday
+            </h2>
+            <p className='mt-4 text-sm leading-7 text-base-content/72 md:text-base'>
+              Featured recipes will appear here after meals with ratings are available.
+            </p>
+          </div>
+        </Container>
+      </section>
+    )
   }
 
   const [featuredMeal, ...otherMeals] = meals

@@ -1,116 +1,102 @@
 import { useState } from "react";
-import DeleteModal from "../../Modal/DeleteModal";
-import UpdateMealModal from "../../Modal/UpdateMealModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
+import DeleteModal from "../../Modal/DeleteModal";
+import UpdateMealModal from "../../Modal/UpdateMealModal";
+import {
+  dashboardDangerButtonClassName,
+  dashboardSecondaryButtonClassName,
+  dashboardTableCellClassName,
+} from "../DashboardUI";
 
 const MealDataRow = ({ meal, user }) => {
-  let [isOpen, setIsOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  function openModal() {
-    setIsOpen(true);
-  }
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  // mealData
-  const {
-    chefId,
-    chefName,
-    estimatedDeliveryTime,
-    foodImage,
-    foodName,
-    ingredients,
-    price,
-    rating,
-    _id,
-  } = meal;
-  console.log(meal);
-
   const { mutate: handleMealDelete } = useMutation({
     mutationFn: () =>
-      axios.delete(`${import.meta.env.VITE_API_BASE_URL}/meal/${_id}`),
+      axios.delete(`${import.meta.env.VITE_API_BASE_URL}/meal/${meal._id}`),
     onSuccess: () => {
-      toast.success("Meal has been deleted!");
+      toast.success("Meal deleted");
       queryClient.invalidateQueries({ queryKey: ["myMeals", user?.email] });
     },
-    onError: (err) => toast.error(err.message),
+    onError: () => toast.error("Could not delete the meal"),
   });
 
   return (
-    <tr>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <div className="flex items-center">
-          <div className="shrink-0">
-            <div className="block relative">
-              <img
-                alt="profile"
-                src={foodImage}
-                className="mx-auto object-cover rounded h-10 w-15 "
-              />
-            </div>
+    <tr className="border-t border-base-300/60">
+      <td className={dashboardTableCellClassName}>
+        <div className="flex min-w-[16rem] items-center gap-4">
+          <img
+            alt={meal.foodName}
+            src={meal.foodImage}
+            className="h-16 w-16 rounded-2xl object-cover"
+          />
+          <div className="space-y-1">
+            <p className="font-semibold text-base-content">{meal.foodName}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-base-content/45">
+              Published meal
+            </p>
           </div>
         </div>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{foodName}</p>
+
+      <td className={dashboardTableCellClassName}>
+        <p className="font-semibold text-base-content">{meal.price} TK</p>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{price} TK</p>
+
+      <td className={dashboardTableCellClassName}>
+        <p className="font-semibold text-base-content">{meal.rating}/5</p>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{rating}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{ingredients.join(",")}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">
-          {estimatedDeliveryTime.minTime} - {estimatedDeliveryTime.maxTime} mins
+
+      <td
+        className={`${dashboardTableCellClassName} min-w-[15rem] whitespace-normal`}
+      >
+        <p className="leading-6 text-base-content/70">
+          {meal.ingredients.join(", ")}
         </p>
       </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{chefName}</p>
-      </td>
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <p className="text-gray-900 ">{chefId}</p>
+
+      <td className={dashboardTableCellClassName}>
+        <p className="text-base-content/75">
+          {meal.estimatedDeliveryTime.minTime} -{" "}
+          {meal.estimatedDeliveryTime.maxTime} mins
+        </p>
       </td>
 
-      {/* delete */}
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span
-          onClick={openModal}
-          className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 bg-red-200 opacity-50 rounded-full"
-          ></span>
-          <span className="relative">Delete</span>
-        </span>
+      <td className={dashboardTableCellClassName}>
+        <p className="font-medium text-base-content">{meal.chefName}</p>
+        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-base-content/45">
+          {meal.chefId}
+        </p>
+      </td>
+
+      <td className={dashboardTableCellClassName}>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(true)}
+            className={dashboardSecondaryButtonClassName}
+          >
+            Update
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(true)}
+            className={dashboardDangerButtonClassName}
+          >
+            Delete
+          </button>
+        </div>
+
         <DeleteModal
-          isOpen={isOpen}
-          closeModal={closeModal}
+          isOpen={isDeleteModalOpen}
+          closeModal={() => setIsDeleteModalOpen(false)}
           onConfirm={handleMealDelete}
         />
-      </td>
 
-      {/* update */}
-      <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span
-          onClick={() => setIsEditModalOpen(true)}
-          className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
-          ></span>
-          <span className="relative">Update</span>
-        </span>
         <UpdateMealModal
           isOpen={isEditModalOpen}
           setIsEditModalOpen={setIsEditModalOpen}
