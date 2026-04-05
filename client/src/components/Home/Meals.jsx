@@ -9,7 +9,7 @@ const Meals = () => {
   const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState("createdAt")
   const [order, setOrder] = useState("desc")
-  const limit = 6
+  const limit = 16
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['allMeals', page, sortBy, order],
@@ -22,7 +22,7 @@ const Meals = () => {
   if (isError) {
     return (
       <Container>
-        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-100 p-6 text-center shadow-sm'>
+        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-200/55 p-6 text-center'>
           <h2 className='text-2xl font-semibold text-base-content'>Meals are not available right now</h2>
           <p className='mt-3 text-sm leading-7 text-base-content/70 md:text-base'>
             {error?.message || 'Please try again when the API is available.'}
@@ -38,7 +38,7 @@ const Meals = () => {
   if (meals.length === 0) {
     return (
       <Container>
-        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-100 p-6 text-center shadow-sm'>
+        <div className='mt-8 rounded-[1.75rem] border border-base-300 bg-base-200/55 p-6 text-center'>
           <h2 className='text-2xl font-semibold text-base-content'>No meals have been published yet</h2>
           <p className='mt-3 text-sm leading-7 text-base-content/70 md:text-base'>
             Check back after local chefs add a few dishes to the menu.
@@ -50,9 +50,9 @@ const Meals = () => {
 
   return (
     <Container>
-      <div className='mt-8 flex flex-col gap-4 rounded-[1.75rem] border border-base-300 bg-base-100 p-5 shadow-sm md:flex-row md:items-center md:justify-between md:p-6'>
+      <div className='mt-8 flex flex-col gap-4 rounded-[1.75rem] border border-base-300 bg-base-200/55 p-5 md:flex-row md:items-center md:justify-between md:p-6'>
         <div>
-          <p className='text-sm text-base-content/60'>Sort meals by what matters most</p>
+          <p className='text-sm text-base-content/60'>Sort meals by what matters most to you</p>
         </div>
         <div className='flex flex-col gap-3 sm:flex-row'>
         <select
@@ -81,7 +81,7 @@ const Meals = () => {
         {meals.map(meal => <Card key={meal._id} meal={meal} />)}
       </div>
 
-      <div className='mt-10 flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-base-300 bg-base-100 px-5 py-6 text-center shadow-sm sm:flex-row'>
+      <div className='mt-10 flex flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-base-300 bg-base-200/55 px-5 py-6 text-center sm:flex-row'>
         <button
           onClick={() => setPage(prev => Math.max(prev - 1, 1))}
           disabled={page === 1}

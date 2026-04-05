@@ -1,8 +1,15 @@
 import { Link } from 'react-router'
 import Container from '../Container'
 import Logo from '../Logo'
+import useAuth from '../../../hooks/useAuth'
+import useRole from '../../../hooks/useRole'
 
 const Footer = () => {
+  const { user } = useAuth()
+  const { role, isRoleLoading } = useRole()
+  const showBecomeChefLink =
+    !user || (!isRoleLoading && role !== 'chef' && role !== 'admin')
+
   return (
     <footer className='border-t border-base-300/70 bg-base-200/55'>
       <Container>
@@ -36,9 +43,11 @@ const Footer = () => {
               <Link to='/how-it-works' className='transition hover:text-primary'>
                 How It Works
               </Link>
-              <Link to='/become-a-chef' className='transition hover:text-primary'>
-                Become a Chef
-              </Link>
+              {showBecomeChefLink && (
+                <Link to='/become-a-chef' className='transition hover:text-primary'>
+                  Become a Chef
+                </Link>
+              )}
               <Link to='/contact' className='transition hover:text-primary'>
                 Contact
               </Link>

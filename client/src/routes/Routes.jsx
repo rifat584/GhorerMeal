@@ -8,8 +8,6 @@ import ManageUsers from "../pages/Dashboard/Admin/ManageUsers";
 import Profile from "../pages/Dashboard/Common/Profile";
 import Statistics from "../pages/Dashboard/Common/Statistics";
 import MainLayout from "../layouts/MainLayout";
-import MyInventory from "../pages/Dashboard/Seller/MyMeals";
-import ManageOrders from "../pages/Dashboard/Seller/OrderRequests";
 import MyOrders from "../pages/Dashboard/Customer/MyOrders";
 import { createBrowserRouter } from "react-router";
 import MealDetails from "../pages/PlantDetails/MealDetails";
@@ -24,12 +22,10 @@ import AllMeals from "../pages/Meals/AllMeals";
 import ChefRoute from "./ChefRoute";
 import AdminRoute from "./AdminRoute";
 import UserRoute from "./UserRoute";
-import {
-  AboutPage,
-  BecomeChefPage,
-  ContactPage,
-  HowItWorksPage,
-} from "../pages/PublicPages";
+import About from "../pages/about/About";
+import BecomeChefPage from "../pages/become-a-chef/BecomeChef";
+import Contact from "../pages/contact/Contact";
+import HowItWorks from "../pages/how-it-works/HowItWorks";
 
 export const router = createBrowserRouter([
   {
@@ -47,11 +43,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/about",
-        element: <AboutPage />,
+        element: <About />,
       },
       {
         path: "/how-it-works",
-        element: <HowItWorksPage />,
+        element: <HowItWorks />,
       },
       {
         path: "/become-a-chef",
@@ -59,13 +55,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/contact",
-        element: <ContactPage />,
+        element: <Contact />,
       },
       {
         path: "/meal/:id",
-        element: <PrivateRoute>
-          <MealDetails />
-        </PrivateRoute>,
+        element: <MealDetails />
       },
       {
         path: "payment-success",

@@ -1,28 +1,39 @@
 import { motion } from 'motion/react'
 import { Link } from 'react-router'
 import Container from '../Shared/Container'
+import useAuth from '../../hooks/useAuth'
+import useRole from '../../hooks/useRole'
 
 const Hero = () => {
+  const MotionDiv = motion.div
+  const MotionH1 = motion.h1
+  const MotionP = motion.p
+  const MotionArticle = motion.article
+  const { user } = useAuth()
+  const { role, isRoleLoading } = useRole()
+  const showBecomeChefButton =
+    !user || (!isRoleLoading && role !== 'chef' && role !== 'admin')
+
   return (
     <section className='overflow-hidden border-b border-base-300 bg-base-100'>
       <Container>
         <div className='grid items-center gap-12 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16 lg:py-22'>
-          <motion.div
+          <MotionDiv
             className='max-w-2xl'
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, ease: 'easeOut' }}
           >
-            <motion.h1
+            <MotionH1
               className='text-4xl leading-tight font-semibold text-base-content sm:text-5xl lg:text-6xl'
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: 'easeOut', delay: 0.05 }}
             >
               Home-cooked meals that make busy days feel lighter.
-            </motion.h1>
+            </MotionH1>
 
-            <motion.p
+            <MotionP
               className='mt-5 max-w-xl text-base leading-8 text-base-content/72 sm:text-lg'
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -30,9 +41,9 @@ const Hero = () => {
             >
               Find familiar lunches and dinners from nearby home chefs, prepared
               with care and delivered in a way that fits everyday life.
-            </motion.p>
+            </MotionP>
 
-            <motion.div
+            <MotionDiv
               className='mt-8 flex flex-wrap gap-3'
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -41,13 +52,15 @@ const Hero = () => {
               <Link to='/all-meals' className='btn btn-primary rounded-full px-6'>
                 Explore Meals
               </Link>
-              <Link to='/become-a-chef' className='btn btn-outline rounded-full px-6'>
-                Become a Chef
-              </Link>
-            </motion.div>
-          </motion.div>
+              {showBecomeChefButton && (
+                <Link to='/become-a-chef' className='btn btn-outline rounded-full px-6'>
+                  Become a Chef
+                </Link>
+              )}
+            </MotionDiv>
+          </MotionDiv>
 
-          <motion.div
+          <MotionDiv
             className='relative'
             initial={{ opacity: 0, x: 24, scale: 0.97 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -70,7 +83,7 @@ const Hero = () => {
               />
             </div>
 
-            <motion.article
+            <MotionArticle
               className='absolute bottom-4 left-4 max-w-68 rounded-[1.75rem] border border-base-300 bg-base-100/96 px-4 py-4 shadow-lg backdrop-blur sm:bottom-6 sm:left-6 sm:px-5'
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -82,8 +95,8 @@ const Hero = () => {
               <p className='mt-2 text-lg font-semibold leading-snug text-base-content'>
                 Fresh lunch boxes and family curries from local kitchens
               </p>
-            </motion.article>
-          </motion.div>
+            </MotionArticle>
+          </MotionDiv>
         </div>
       </Container>
     </section>

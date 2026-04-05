@@ -12,6 +12,7 @@ const UpdateMealForm = ({ meal, closeModal }) => {
   const { register, handleSubmit } = useForm({
     defaultValues: {
       foodName: meal.foodName,
+      description: meal.description || '',
       ingredients: meal.ingredients.join(", "),
       price: meal.price,
       minTime: meal.estimatedDeliveryTime.minTime,
@@ -27,6 +28,7 @@ const UpdateMealForm = ({ meal, closeModal }) => {
 
       const updatedMeal = {
         foodName: data.foodName,
+        description: data.description.trim(),
         ingredients: data.ingredients
           .split(",")
           .map(item => item.trim())
@@ -71,6 +73,16 @@ const UpdateMealForm = ({ meal, closeModal }) => {
           </label>
           <textarea
             {...register("ingredients")}
+            className={`${inputClassName} min-h-28`}
+          />
+        </div>
+
+        <div className="space-y-2 text-sm">
+          <label className="font-medium text-base-content/75">
+            Product description
+          </label>
+          <textarea
+            {...register("description")}
             className={`${inputClassName} min-h-28`}
           />
         </div>

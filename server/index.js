@@ -81,6 +81,7 @@ const createServer = () => {
       const reviewsColl = db.collection("reviews");
       const favoriteColl = db.collection("favorite");
       const ordersColl = db.collection("orders");
+      const contactRequestsColl = db.collection("contactRequests");
 
       // POST REQUESTS
       // meals
@@ -173,6 +174,28 @@ const createServer = () => {
           ...ordersData,
           orderTime: new Date().toISOString(),
         });
+        res.send(result);
+      });
+
+      app.post("/contact-requests", async (req, res) => {
+        const { name, email, subject, message, phone } = req.body;
+
+        if (!name || !email || !subject || !message) {
+          return res.status(400).json({
+            message: "Name, email, subject, and message are required",
+          });
+        }
+
+        const result = await contactRequestsColl.insertOne({
+          name,
+          email,
+          subject,
+          message,
+          phone: phone || "",
+          status: "new",
+          createdAt: new Date().toISOString(),
+        });
+
         res.send(result);
       });
 
