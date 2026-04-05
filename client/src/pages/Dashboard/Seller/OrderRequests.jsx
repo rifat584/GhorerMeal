@@ -4,7 +4,9 @@ import useAuth from '../../../hooks/useAuth'
 import queryFetch from '../../../utilitis/queryFetch'
 import LoadingSpinner from '../../../components/Shared/LoadingSpinner'
 import {
+  DashboardBadge,
   DashboardPage,
+  DashboardPanel,
   DashboardTable,
 } from '../../../components/Dashboard/DashboardUI'
 
@@ -48,18 +50,71 @@ if(isLoading) return <LoadingSpinner/>
   const pendingOrders = orders.filter(order => order.orderStatus === 'pending').length
   const acceptedOrders = orders.filter(order => order.orderStatus === 'accepted').length
   const deliveredOrders = orders.filter(order => order.orderStatus === 'delivered').length
+  const waitingForPayment = orders.filter(
+    order => order.orderStatus === 'accepted' && order.paymentStatus !== 'paid'
+  ).length
+  const readyToDeliver = orders.filter(
+    order => order.orderStatus === 'accepted' && order.paymentStatus === 'paid'
+  ).length
+
+  const attentionItems = [
+    {
+      label: 'New orders',
+      value: pendingOrders,
+      detail: 'These customers are still waiting for your response.',
+      tone: 'warning',
+    },
+    {
+      label: 'Ready to deliver',
+      value: readyToDeliver,
+      detail: 'Payment is done, so these meals can move to delivery.',
+      tone: 'success',
+    },
+    {
+      label: 'Waiting for payment',
+      value: waitingForPayment,
+      detail: 'You already accepted these orders, but customers still need to pay.',
+      tone: 'primary',
+    },
+  ].filter(item => item.value > 0)
 
   return (
     <DashboardPage
       title='Order requests'
-      description='Track incoming customer orders, move the right requests into delivery, and keep customers updated with clear status changes.'
+      description='Handle new orders first, keep an eye on what is ready for delivery, and use the current order status as your daily update feed.'
       metrics={[
-        { label: 'Total requests', value: totalOrders, helper: 'Every order currently tied to your chef account.', tone: 'primary' },
-        { label: 'Pending', value: pendingOrders, helper: 'Orders still waiting for your response.', tone: 'warning' },
-        { label: 'Accepted', value: acceptedOrders, helper: 'Orders that are currently in progress.', tone: 'success' },
-        { label: 'Delivered', value: deliveredOrders, helper: 'Orders marked complete from this dashboard.', tone: 'neutral' },
+        { label: 'Total requests', value: totalOrders, tone: 'primary' },
+        { label: 'Pending', value: pendingOrders, tone: 'warning' },
+        { label: 'Accepted', value: acceptedOrders, tone: 'success' },
+        { label: 'Delivered', value: deliveredOrders, tone: 'neutral' },
       ]}
     >
+      <DashboardPanel title='Needs attention'>
+        {attentionItems.length > 0 ? (
+          <div className='grid gap-3 lg:grid-cols-3'>
+            {attentionItems.map(item => (
+              <article
+                key={item.label}
+                className='rounded-[1.5rem] border border-base-300/70 bg-base-200/45 p-4'
+              >
+                <DashboardBadge tone={item.tone}>{item.label}</DashboardBadge>
+                <p className='mt-4 text-3xl font-semibold tracking-tight text-base-content'>
+                  {item.value}
+                </p>
+                <p className='mt-2 text-sm leading-7 text-base-content/68'>
+                  {item.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className='text-sm leading-7 text-base-content/68'>
+            Nothing urgent right now. New orders, paid deliveries, and payment delays
+            will show up here automatically.
+          </p>
+        )}
+      </DashboardPanel>
+
       <DashboardTable
         title='Customer orders'
         countLabel='Order'

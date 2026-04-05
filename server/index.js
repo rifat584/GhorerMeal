@@ -228,6 +228,7 @@ const createServer = () => {
 
       app.post("/orders", async (req, res) => {
         const ordersData = req.body;
+        const orderTime = new Date().toISOString();
 
         const {
           mealName,
@@ -274,7 +275,8 @@ const createServer = () => {
           price,
           orderStatus: "pending",
           paymentStatus: "pending",
-          orderTime: new Date().toISOString(),
+          orderTime,
+          updatedAt: orderTime,
         });
         res.send(result);
       });
@@ -310,18 +312,50 @@ const createServer = () => {
 
       // Paginated meals
       app.get("/all-meals", async (req, res) => {
-        const page = parseInt(req.query.page) || 1;
+        const page = Math.max(1, parseInt(req.query.page) || 1);
         const limit = parseInt(req.query.limit) || 6;
         const skip = (page - 1) * limit;
+        const search = req.query.search?.trim();
+        const maxPrice = Number(req.query.maxPrice);
+        const minRating = Number(req.query.minRating);
+        const maxDeliveryTime = Number(req.query.maxDeliveryTime);
 
-        // Sort options
-        const sortBy = req.query.sortBy || "createdAt"; // default sort field
-        const order = req.query.order === "desc" ? -1 : 1; // default ascending
+        const sortFieldByKey = {
+          createdAt: "createdAt",
+          price: "price",
+          rating: "rating",
+          chefExperience: "chefExperience",
+        };
+        const sortBy = sortFieldByKey[req.query.sortBy] || "createdAt";
+        const order = req.query.order === "asc" ? 1 : -1;
 
-        const total = await mealsColl.countDocuments();
+        const mealQuery = {};
+
+        if (search) {
+          mealQuery.$or = [
+            { foodName: { $regex: search, $options: "i" } },
+            { chefName: { $regex: search, $options: "i" } },
+          ];
+        }
+
+        if (Number.isFinite(maxPrice) && maxPrice > 0) {
+          mealQuery.price = { $lte: maxPrice };
+        }
+
+        if (Number.isFinite(minRating) && minRating > 0) {
+          mealQuery.rating = { $gte: minRating };
+        }
+
+        if (Number.isFinite(maxDeliveryTime) && maxDeliveryTime > 0) {
+          mealQuery["estimatedDeliveryTime.maxTime"] = {
+            $lte: maxDeliveryTime,
+          };
+        }
+
+        const total = await mealsColl.countDocuments(mealQuery);
 
         const meals = await mealsColl
-          .find()
+          .find(mealQuery)
           .sort({ [sortBy]: order })
           .skip(skip)
           .limit(limit)
@@ -331,7 +365,7 @@ const createServer = () => {
           data: meals,
           total,
           page,
-          totalPages: Math.ceil(total / limit),
+          totalPages: Math.max(1, Math.ceil(total / limit)),
         });
       });
 
@@ -437,22 +471,30 @@ const createServer = () => {
 
       // order by single user
       app.get("/orders", async (req, res) => {
-        const result = await ordersColl.find().toArray();
+        const result = await ordersColl
+          .find()
+          .sort({ updatedAt: -1, orderTime: -1 })
+          .toArray();
         res.send(result);
       });
 
       // order by single user
       app.get("/order/:email", async (req, res) => {
         const email = req.params.email;
-        const result = await ordersColl.find({ userEmail: email }).toArray();
+        const result = await ordersColl
+          .find({ userEmail: email })
+          .sort({ updatedAt: -1, orderTime: -1 })
+          .toArray();
         res.send(result);
       });
 
       // chef's order requests
       app.get("/order/chef/:id", async (req, res) => {
         const chefId = req.params.id;
-        // console.log(req);
-        const result = await ordersColl.find({ chefId }).toArray();
+        const result = await ordersColl
+          .find({ chefId })
+          .sort({ updatedAt: -1, orderTime: -1 })
+          .toArray();
         res.send(result);
       });
 
@@ -539,6 +581,16 @@ const createServer = () => {
         const result = await ordersColl.updateOne(query, {
           $set: {
             orderStatus: status,
+            updatedAt: new Date().toISOString(),
+            ...(status === "accepted" && {
+              acceptedTime: new Date().toISOString(),
+            }),
+            ...(status === "cancelled" && {
+              cancelledTime: new Date().toISOString(),
+            }),
+            ...(status === "delivered" && {
+              deliveredTime: new Date().toISOString(),
+            }),
           },
         });
         res.send(result);
@@ -676,17 +728,29 @@ const createServer = () => {
 
         try {
           const session = await stripe.checkout.sessions.retrieve(session_id);
+          const orderId = session.metadata?.orderId;
+          let order = null;
 
-          if (session.payment_status === "paid") {
-            await ordersColl.updateOne(
-              { _id: new ObjectId(session.metadata.orderId) },
-              {
+          if (ObjectId.isValid(orderId)) {
+            const orderQuery = { _id: new ObjectId(orderId) };
+            const existingOrder = await ordersColl.findOne(orderQuery);
+
+            if (
+              session.payment_status === "paid" &&
+              existingOrder?.paymentStatus !== "paid"
+            ) {
+              const paymentTime = new Date().toISOString();
+
+              await ordersColl.updateOne(orderQuery, {
                 $set: {
                   paymentStatus: "paid",
-                  paymentTime: new Date().toISOString(),
+                  paymentTime,
+                  updatedAt: paymentTime,
                 },
-              },
-            );
+              });
+            }
+
+            order = await ordersColl.findOne(orderQuery);
           }
 
           res.send({
@@ -694,6 +758,10 @@ const createServer = () => {
             paymentStatus: session.payment_status,
             customerEmail:
               session.customer_details?.email || session.customer_email,
+            orderId,
+            mealName: order?.mealName || session.metadata?.mealName || "",
+            orderStatus: order?.orderStatus || "",
+            paymentTime: order?.paymentTime || null,
           });
         } catch (error) {
           res.status(500).json({ message: error.message });

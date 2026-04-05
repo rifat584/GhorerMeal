@@ -20,6 +20,9 @@ const formatDate = dateValue => dateValue?.split("T")[0] || "No date";
 
 const SellerOrderDataRow = ({ order }) => {
   const queryClient = useQueryClient();
+  const latestOrderTime = order.updatedAt || order.orderTime;
+  const latestOrderLabel =
+    latestOrderTime !== order.orderTime ? "Updated" : "Ordered";
   const isPendingOrder = order.orderStatus === "pending";
   const isAcceptedOrder = order.orderStatus === "accepted";
   const isPaidOrder = order.paymentStatus === "paid";
@@ -61,7 +64,7 @@ const SellerOrderDataRow = ({ order }) => {
           {order.userAddress}
         </p>
         <p className="mt-2 text-xs uppercase tracking-[0.18em] text-base-content/45">
-          Ordered {formatDate(order.orderTime)}
+          {latestOrderLabel} {formatDate(latestOrderTime)}
         </p>
       </td>
 
