@@ -4,6 +4,7 @@ import useAuth from '../../../hooks/useAuth'
 import { GrLogout } from 'react-icons/gr'
 import { AiOutlineBars } from 'react-icons/ai'
 import { IoStatsChart, IoClose, IoPersonCircleOutline } from 'react-icons/io5'
+import { HiOutlineMoon, HiOutlineSun } from 'react-icons/hi2'
 
 import MenuItem from './Menu/MenuItem'
 import AdminMenu from './Menu/AdminMenu'
@@ -11,15 +12,25 @@ import UserMenu from './Menu/UserMenu'
 import useRole from '../../../hooks/useRole'
 import ChefMenu from './Menu/ChefMenu'
 import Logo from '../../Shared/Logo'
+import { DARK_THEME, getTheme, setTheme, toggleTheme } from '../../../utilitis/theme'
 
 const Sidebar = () => {
   const { logOut } = useAuth()
   const [isActive, setActive] = useState(false)
+  const [theme, setCurrentTheme] = useState(getTheme)
   const { role } = useRole()
 
   const handleToggle = () => {
     setActive(!isActive)
   }
+
+  const handleThemeToggle = () => {
+    const nextTheme = toggleTheme(theme)
+    setTheme(nextTheme)
+    setCurrentTheme(nextTheme)
+  }
+
+  const isDarkTheme = theme === DARK_THEME
 
   return (
     <>
@@ -88,8 +99,25 @@ const Sidebar = () => {
             </div>
 
             <div className='mt-6 border-t border-neutral-content/10 pt-4'>
-            
               <div className='mt-3 space-y-1'>
+                <button
+                  type='button'
+                  onClick={handleThemeToggle}
+                  className='flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-3 text-sm font-medium text-neutral-content/70 transition hover:bg-neutral-content/10 hover:text-neutral-content'
+                  aria-label={`Switch to ${isDarkTheme ? 'light' : 'dark'} mode`}
+                >
+                  <span className='flex items-center gap-3'>
+                    {isDarkTheme ? (
+                      <HiOutlineSun className='h-5 w-5' />
+                    ) : (
+                      <HiOutlineMoon className='h-5 w-5' />
+                    )}
+                    <span>{isDarkTheme ? 'Light mode' : 'Dark mode'}</span>
+                  </span>
+                  <span className='text-xs uppercase tracking-[0.18em] text-neutral-content/45'>
+                    {isDarkTheme ? 'On' : 'Off'}
+                  </span>
+                </button>
                 <MenuItem
                   icon={IoPersonCircleOutline}
                   label='Profile'
