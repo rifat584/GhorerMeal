@@ -24,13 +24,17 @@ const CustomerOrderDataRow = ({ order }) => {
     mutationFn: () =>
       axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/create-checkout-session`,
-        order
+        { _id: order._id }
       ),
     onSuccess: response => {
       window.location.href = response.data.url;
     },
     onError: error => {
-      toast.error(error.response?.data?.error || "Could not start payment");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Could not start payment"
+      );
     },
   });
 

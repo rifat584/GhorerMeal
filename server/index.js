@@ -28,7 +28,7 @@ const createCorsOptions = ({ baseUrl = process.env.BASE_URL } = {}) => ({
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
-  optionSuccessStatus: 200,
+  optionsSuccessStatus: 200,
 });
 
 const createServer = () => {
@@ -50,17 +50,14 @@ const createServer = () => {
 
   const verifyJWT = async (req, res, next) => {
     const token = req?.headers?.authorization?.split(" ")[1];
-    console.log(token);
     if (!token)
       return res.status(401).send({ message: "Unauthorized Access!" });
     try {
       const decoded = await admin.auth().verifyIdToken(token);
       req.tokenEmail = decoded.email;
-      console.log(decoded);
       next();
-    } catch (err) {
-      console.log(err);
-      return res.status(401).send({ message: "Unauthorized Access!", err });
+    } catch {
+      return res.status(401).send({ message: "Unauthorized Access!" });
     }
   };
 
@@ -94,22 +91,83 @@ const createServer = () => {
       // users
       app.post("/users", async (req, res) => {
         const userData = req.body;
-        const result = await usersColl.insertOne(userData);
-        res.send(result);
+        const email = userData?.email?.trim();
+
+        if (!email) {
+          return res.status(400).json({ message: "Email is required" });
+        }
+
+        const existingUser = await usersColl.findOne({ email });
+
+        if (existingUser) {
+          const updatedProfile = {
+            name: userData.name || existingUser.name || "User",
+            profileImage:
+              userData.profileImage || existingUser.profileImage || "",
+            address: userData.address || existingUser.address || "N/A",
+          };
+
+          await usersColl.updateOne(
+            { email },
+            {
+              $set: updatedProfile,
+            },
+          );
+
+          const updatedUser = await usersColl.findOne({ email });
+
+          return res.send({
+            inserted: false,
+            user: updatedUser,
+          });
+        }
+
+        const result = await usersColl.insertOne({
+          email,
+          name: userData.name || "User",
+          profileImage: userData.profileImage || "",
+          address: userData.address || "N/A",
+          role: "user",
+          status: "active",
+          createdAt: userData.createdAt || new Date().toISOString(),
+        });
+        const savedUser = await usersColl.findOne({ _id: result.insertedId });
+
+        res.send({
+          inserted: true,
+          user: savedUser,
+        });
       });
 
       // roles
       app.post("/roles", async (req, res) => {
         const userData = req.body;
+        const userEmail = userData?.userEmail?.trim();
+
+        if (!userEmail) {
+          return res.status(400).json({ message: "User email is required" });
+        }
+
+        const account = await usersColl.findOne({ email: userEmail });
+
+        if (account?.role === "chef" || account?.role === "admin") {
+          return res.status(409).json({
+            message: "This account already has chef access",
+          });
+        }
+
         const existingRequest = await rolesColl.findOne({
-          userEmail: userData.userEmail,
+          userEmail,
         });
         if (existingRequest) {
           return res.status(409).json({
             message: "Your request is being processed. Wait for approval!",
           });
         }
-        const result = await rolesColl.insertOne(userData);
+        const result = await rolesColl.insertOne({
+          ...userData,
+          userEmail,
+        });
         res.send(result);
       });
 
@@ -170,8 +228,52 @@ const createServer = () => {
 
       app.post("/orders", async (req, res) => {
         const ordersData = req.body;
+
+        const {
+          mealName,
+          foodId,
+          chefId,
+          chefName,
+          userEmail,
+          userAddress,
+          estimatedDeliveryTime,
+        } = ordersData;
+        const quantity = Number(ordersData.quantity);
+        const price = Number(ordersData.price);
+
+        if (
+          !mealName ||
+          !foodId ||
+          !chefId ||
+          !chefName ||
+          !userEmail ||
+          !userAddress
+        ) {
+          return res.status(400).json({
+            message: "Meal, chef, and customer details are required",
+          });
+        }
+
+        if (!Number.isFinite(quantity) || quantity < 1) {
+          return res.status(400).json({ message: "Quantity must be at least 1" });
+        }
+
+        if (!Number.isFinite(price) || price <= 0) {
+          return res.status(400).json({ message: "Price must be greater than 0" });
+        }
+
         const result = await ordersColl.insertOne({
-          ...ordersData,
+          mealName,
+          foodId,
+          chefId,
+          chefName,
+          userEmail,
+          userAddress,
+          estimatedDeliveryTime,
+          quantity,
+          price,
+          orderStatus: "pending",
+          paymentStatus: "pending",
           orderTime: new Date().toISOString(),
         });
         res.send(result);
@@ -369,6 +471,16 @@ const createServer = () => {
           return res.status(400).json({ message: "Invalid role" });
         }
 
+        const existingUser = await usersColl.findOne({ email });
+
+        if (!existingUser) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        if (existingUser.role === role) {
+          return res.send(existingUser);
+        }
+
         const update =
           role === "chef"
             ? {
@@ -385,10 +497,6 @@ const createServer = () => {
         const result = await usersColl.findOneAndUpdate({ email }, update, {
           returnDocument: "after",
         });
-
-        if (!result) {
-          return res.status(404).json({ message: "User not found" });
-        }
 
         res.send(result);
       });
@@ -480,15 +588,47 @@ const createServer = () => {
       // STRIPE PAYMENT API
       app.post("/create-checkout-session", async (req, res) => {
         try {
-          const {
-            _id: orderId,
-            mealName,
-            price,
-            quantity,
-            chefId,
-            userEmail,
-            foodId,
-          } = req.body;
+          const orderId = req.body?._id;
+
+          if (!ObjectId.isValid(orderId)) {
+            return res.status(400).json({ message: "Invalid order id" });
+          }
+
+          const order = await ordersColl.findOne({
+            _id: new ObjectId(orderId),
+          });
+
+          if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+          }
+
+          if (order.orderStatus !== "accepted") {
+            return res.status(400).json({
+              message: "Only accepted orders can move to payment",
+            });
+          }
+
+          if (order.paymentStatus === "paid") {
+            return res.status(400).json({
+              message: "This order has already been paid",
+            });
+          }
+
+          const quantity = Number(order.quantity);
+          const totalPrice = Number(order.price);
+          const unitAmount = Math.round((totalPrice / quantity) * 100);
+
+          if (
+            !Number.isFinite(quantity) ||
+            quantity < 1 ||
+            !Number.isFinite(totalPrice) ||
+            totalPrice <= 0 ||
+            unitAmount <= 0
+          ) {
+            return res.status(400).json({
+              message: "This order has invalid payment details",
+            });
+          }
 
           const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -499,22 +639,22 @@ const createServer = () => {
                 price_data: {
                   currency: "bdt",
                   product_data: {
-                    name: mealName,
+                    name: order.mealName,
                   },
-                  unit_amount: (price / quantity) * 100,
+                  unit_amount: unitAmount,
                 },
                 quantity,
               },
             ],
 
-            customer_email: userEmail,
+            customer_email: order.userEmail,
 
             metadata: {
               orderId,
-              chefId,
-              userEmail,
-              mealName,
-              foodId,
+              chefId: order.chefId,
+              userEmail: order.userEmail,
+              mealName: order.mealName,
+              foodId: order.foodId,
             },
 
             success_url: `${process.env.BASE_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
