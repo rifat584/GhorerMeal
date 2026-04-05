@@ -1,30 +1,28 @@
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useState } from 'react'
+import { useRef } from 'react'
 import toast from 'react-hot-toast'
 
 const UpdateUserRoleModal = ({ isOpen, closeModal, role,email }) => {
-  const [updatedRole, setUpdatedRole] = useState(role)
-  const queryClient = useQueryClient();
+  const roleSelectRef = useRef(null)
+  const queryClient = useQueryClient()
 
-  const handleUserRoleUpdate =async ()=>{
-  try {
-   await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/user/${email}?role=${updatedRole}`);
-  } catch (error) {
-    console.log(error);
-  }finally{
-    closeModal()
-  }}
-  
-  const {mutate}= useMutation({
-    mutationFn: handleUserRoleUpdate,
-    onSuccess: ()=>{
-      toast.success(`${email} has been set to ${updatedRole}`);
+  const { mutate, isPending } = useMutation({
+    mutationFn: async selectedRole => {
+      await axios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/user/${email}?role=${selectedRole}`
+      )
+
+      return selectedRole
+    },
+    onSuccess: selectedRole =>{
+      toast.success(`${email} has been set to ${selectedRole}`)
       queryClient.invalidateQueries({queryKey: ['users']})
+      closeModal()
     },
     onError: (error)=>{
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || 'Could not update the role')
     }
   })
 
@@ -51,8 +49,9 @@ const UpdateUserRoleModal = ({ isOpen, closeModal, role,email }) => {
               <form>
                 <div>
                   <select
-                    value={updatedRole}
-                    onChange={e => setUpdatedRole(e.target.value)}
+                    key={`${email}-${role}-${isOpen ? 'open' : 'closed'}`}
+                    defaultValue={role}
+                    ref={roleSelectRef}
                     className='w-full my-3 border border-gray-200 rounded-xl px-2 py-3'
                     name='role'
                     id=''
@@ -65,13 +64,15 @@ const UpdateUserRoleModal = ({ isOpen, closeModal, role,email }) => {
                 <div className='flex mt-2 justify-around'>
                   <button
                     type='button'
-                    onClick={()=>mutate()}
+                    onClick={() => mutate(roleSelectRef.current?.value || role)}
+                    disabled={isPending}
                     className='cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2'
                   >
-                    Update
+                    {isPending ? 'Updating...' : 'Update'}
                   </button>
                   <button
                     type='button'
+                    disabled={isPending}
                     className='cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2'
                     onClick={closeModal}
                   >

@@ -31,14 +31,14 @@ const fetchDashboardData = async () => {
 
   return {
     totalUsers: users.length,
-    ordersPending: orders.filter(order => order.orderStatus !== "delivered")
-      .length,
+    ordersPending: orders.filter(
+      order => order.orderStatus === "pending" || order.orderStatus === "accepted"
+    ).length,
     ordersDelivered: orders.filter(order => order.orderStatus === "delivered")
       .length,
-    totalRevenue: orders.reduce(
-      (total, order) => total + Number(order.price || 0),
-      0
-    ),
+    totalRevenue: orders
+      .filter(order => order.paymentStatus === "paid")
+      .reduce((total, order) => total + Number(order.price || 0), 0),
   };
 };
 

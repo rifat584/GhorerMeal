@@ -340,27 +340,34 @@ const createServer = () => {
       app.patch("/user/:email", async (req, res) => {
         const email = req.params.email;
         const { role } = req.query;
+        const allowedRoles = ["user", "chef", "admin"];
 
-        if (role === "chef") {
-          const update = {
-            $set: {
-              role: "chef",
-              chefId: generateChefId(),
-            },
-          };
-
-          const result = await usersColl.findOneAndUpdate({ email }, update, {
-            returnDocument: "after",
-          });
-          return res.send(result);
+        if (!allowedRoles.includes(role)) {
+          return res.status(400).json({ message: "Invalid role" });
         }
-        const update = {
-          $set: { role: role },
-          $unset: { chefId: "" },
-        };
-        const result = await usersColl.findOneAndUpdate({ email }, update);
+
+        const update =
+          role === "chef"
+            ? {
+                $set: {
+                  role,
+                  chefId: generateChefId(),
+                },
+              }
+            : {
+                $set: { role },
+                $unset: { chefId: "" },
+              };
+
+        const result = await usersColl.findOneAndUpdate({ email }, update, {
+          returnDocument: "after",
+        });
+
+        if (!result) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
         res.send(result);
-        // console.log(result);
       });
 
       // Order Process
@@ -503,23 +510,31 @@ const createServer = () => {
         if (!session_id) {
           return res.status(400).json({ message: "Missing session_id" });
         }
-        const session = await stripe.checkout.sessions.retrieve(session_id);
-        if (session.payment_status === "paid") {
-          await ordersColl.updateOne(
-            { _id: new ObjectId(session.metadata.orderId) },
-            {
-              $set: {
-                paymentStatus: "paid",
-                paymentTime: new Date().toISOString(),
+
+        try {
+          const session = await stripe.checkout.sessions.retrieve(session_id);
+
+          if (session.payment_status === "paid") {
+            await ordersColl.updateOne(
+              { _id: new ObjectId(session.metadata.orderId) },
+              {
+                $set: {
+                  paymentStatus: "paid",
+                  paymentTime: new Date().toISOString(),
+                },
               },
-            },
-          );
+            );
+          }
+
+          res.send({
+            status: session.status,
+            paymentStatus: session.payment_status,
+            customerEmail:
+              session.customer_details?.email || session.customer_email,
+          });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
         }
-        res.send({
-          status: session.status,
-          customer_email: session.customer_details.email,
-          session: session,
-        });
       });
 
       // Send a ping to confirm a successful connection

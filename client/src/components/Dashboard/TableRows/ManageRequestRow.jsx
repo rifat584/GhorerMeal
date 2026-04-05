@@ -10,19 +10,18 @@ import {
 const ManageRequestRow = ({ userRole, refetch }) => {
   const handleAcceptUserRole = async () => {
     try {
-      const acceptedRole = await axios.patch(
+      await axios.patch(
         `${import.meta.env.VITE_API_BASE_URL}/user/${userRole.userEmail}?role=${userRole.requestType}`
       );
 
-      if (acceptedRole.data.role === userRole.requestType) {
-        await axios.delete(
-          `${import.meta.env.VITE_API_BASE_URL}/role/${userRole.userEmail}`
-        );
-        toast.success(`${userRole.userEmail} is now ${userRole.requestType}`);
-        refetch();
-      }
-    } catch {
-      toast.error("Could not update the request");
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/role/${userRole.userEmail}`
+      );
+
+      toast.success(`${userRole.userEmail} is now ${userRole.requestType}`);
+      refetch();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not update the request");
     }
   };
 
@@ -33,8 +32,8 @@ const ManageRequestRow = ({ userRole, refetch }) => {
       );
       toast.success("Request rejected");
       refetch();
-    } catch {
-      toast.error("Could not reject the request");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Could not reject the request");
     }
   };
 
