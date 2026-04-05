@@ -38,6 +38,7 @@ const CreateMealForm = () => {
 
       const mealData = {
         foodName: formData.foodName,
+        description: formData.description.trim(),
         chefName: formData.chefName,
         chefId: formData.chefId,
         ingredients: formData.ingredients
@@ -140,6 +141,27 @@ const CreateMealForm = () => {
               {errors.ingredients && (
                 <p className="text-sm text-error">
                   {errors.ingredients.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <label className="font-medium text-base-content/75">
+                Product description
+              </label>
+              <textarea
+                {...register("description", {
+                  required: {
+                    value: true,
+                    message: "Product description is required",
+                  },
+                })}
+                placeholder="Describe the dish in a clear way so customers know what to expect before ordering"
+                className={`${inputClassName} min-h-32`}
+              />
+              {errors.description && (
+                <p className="text-sm text-error">
+                  {errors.description.message}
                 </p>
               )}
             </div>
