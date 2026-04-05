@@ -8,10 +8,9 @@ import { useParams } from "react-router";
 import queryFetch from "../../utilitis/queryFetch";
 import LoadingSpinner from "../../components/Shared/LoadingSpinner";
 import { FaRegStar, FaStar } from "react-icons/fa";
-import { FaBangladeshiTakaSign } from "react-icons/fa6";
 import useAuth from "../../hooks/useAuth";
 import axios from "axios";
-import toast, { ToastBar } from "react-hot-toast";
+import toast from "react-hot-toast";
 import ReviewModal from "../../components/Modal/ReviewModal";
 
 const MealDetails = () => {
@@ -90,7 +89,7 @@ const MealDetails = () => {
         toast.success("Successfully added to your Favorite");
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Could not add this meal to favorites");
     }
   };
 

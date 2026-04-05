@@ -15,7 +15,7 @@ import Logo from '../../Shared/Logo'
 const Sidebar = () => {
   const { logOut } = useAuth()
   const [isActive, setActive] = useState(false)
-  const role = useRole()
+  const { role } = useRole()
 
   const handleToggle = () => {
     setActive(!isActive)

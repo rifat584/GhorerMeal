@@ -5,45 +5,49 @@ const DeleteModal = ({ closeModal, isOpen, onConfirm }) => {
     <Dialog
       open={isOpen}
       as='div'
-      className='relative z-10 focus:outline-none '
+      className='relative z-50 focus:outline-none'
       onClose={closeModal}
     >
-      <div className='fixed inset-0 z-10 w-screen overflow-y-auto'>
-        <div className='flex min-h-full items-center justify-center p-4'>
-          <DialogPanel
-            transition
-            className='w-full max-w-md bg-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0 shadow-xl rounded-2xl'
-          >
-            <DialogTitle
-              as='h3'
-              className='text-lg font-medium leading-6 text-gray-900'
-            >
-              Are you sure?
-            </DialogTitle>
-            <div className='mt-2'>
-              <p className='text-sm text-gray-500'>
-                You cannot undo once it&apos;s done!
+      <div className='fixed inset-0 bg-base-content/45 backdrop-blur-sm' />
+
+      <div className='fixed inset-0 flex items-center justify-center p-4'>
+        <DialogPanel
+          transition
+          className='w-full max-w-md rounded-[2rem] border border-base-300 bg-base-100 p-6 shadow-2xl duration-200 ease-out data-closed:scale-95 data-closed:opacity-0 sm:p-7'
+        >
+          <div className='space-y-6'>
+            <header className='space-y-3'>
+              <DialogTitle className='text-2xl font-semibold tracking-tight text-base-content'>
+                Delete this meal?
+              </DialogTitle>
+              <p className='text-sm leading-7 text-base-content/70'>
+                This will remove the meal from your dashboard and customers will
+                no longer see it.
               </p>
+            </header>
+
+            <div className='rounded-[1.5rem] border border-base-300 bg-base-200/70 p-4 text-sm leading-7 text-base-content/70'>
+              This action cannot be undone after the meal is deleted.
             </div>
-            <hr className='mt-8 ' />
-            <div className='flex mt-2 justify-around'>
+
+            <div className='flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
               <button
                 type='button'
-                className='cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-green-100 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2'
-                onClick={onConfirm}
-              >
-                Yes
-              </button>
-              <button
-                type='button'
-                className='cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2'
+                className='btn rounded-full border border-base-300 bg-base-100 px-6 text-base-content hover:bg-base-200'
                 onClick={closeModal}
               >
-                No
+                Keep meal
+              </button>
+              <button
+                type='button'
+                className='btn rounded-full border border-error/20 bg-error/12 px-6 text-error hover:bg-error/18'
+                onClick={onConfirm}
+              >
+                Delete meal
               </button>
             </div>
-          </DialogPanel>
-        </div>
+          </div>
+        </DialogPanel>
       </div>
     </Dialog>
   )

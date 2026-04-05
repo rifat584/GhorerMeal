@@ -40,7 +40,7 @@ const BecomeSellerModal = ({ closeModal, isOpen }) => {
       open={isOpen}
       as='div'
       className='relative z-50 focus:outline-none'
-      onClose={closeModal}
+      onClose={isSendingRequest ? () => {} : closeModal}
     >
       <div className='fixed inset-0 bg-base-content/45 backdrop-blur-sm' />
 
@@ -101,7 +101,7 @@ const BecomeSellerModal = ({ closeModal, isOpen }) => {
                 type='button'
                 onClick={closeModal}
                 disabled={isSendingRequest}
-                className='btn rounded-full border border-base-300 bg-base-100 px-6 text-base-content hover:bg-base-200'
+                className='btn rounded-full border border-base-300 bg-base-100 px-6 text-base-content hover:bg-base-200 disabled:border-base-300 disabled:bg-base-100 disabled:text-base-content/50'
               >
                 Cancel
               </button>

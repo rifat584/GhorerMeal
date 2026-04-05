@@ -18,7 +18,41 @@ createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RouterProvider router={router} />
-        <Toaster position="top-right" reverseOrder={false} />
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          gutter={12}
+          toastOptions={{
+            duration: 3200,
+            style: {
+              borderRadius: "1.5rem",
+              border: "1px solid var(--color-base-300)",
+              background: "var(--color-base-100)",
+              color: "var(--color-base-content)",
+              boxShadow: "0 18px 45px rgba(40, 29, 19, 0.12)",
+              padding: "14px 16px",
+            },
+            success: {
+              iconTheme: {
+                primary: "var(--color-primary)",
+                secondary: "var(--color-base-100)",
+              },
+            },
+            error: {
+              duration: 3800,
+              iconTheme: {
+                primary: "var(--color-error)",
+                secondary: "var(--color-base-100)",
+              },
+            },
+            loading: {
+              iconTheme: {
+                primary: "var(--color-secondary)",
+                secondary: "var(--color-base-100)",
+              },
+            },
+          }}
+        />
       </AuthProvider>
        <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
