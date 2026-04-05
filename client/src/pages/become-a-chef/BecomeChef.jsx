@@ -150,9 +150,9 @@ const BecomeChefPage = () => {
   }
 
   return (
-    <div className='pb-16 pt-6 md:pb-20 md:pt-8'>
+    <div className='pb-16 pt-6 md:pb-20 md:pt-8 min-h-screen'>
       <Container>
-        <section className='rounded-[2rem] border border-base-300 bg-base-200/55 p-6 md:p-8'>
+        <section className='rounded-4xl border border-base-300 bg-base-200/55 p-6 md:p-8'>
           <div className='grid gap-10 xl:grid-cols-[0.9fr_1.1fr] xl:items-start'>
             <div>
               <h1 className='mt-4 text-3xl font-semibold tracking-tight text-base-content md:text-5xl'>
@@ -194,7 +194,7 @@ const BecomeChefPage = () => {
               </div>
             </div>
 
-            <div className='rounded-[1.5rem] border border-base-300 bg-base-100 p-5 md:p-6'>
+            <div className='rounded-3xl border border-base-300 bg-base-100 p-5 md:p-6'>
               <>
                   <div>
                     <h2 className='text-2xl font-semibold tracking-tight text-base-content'>
