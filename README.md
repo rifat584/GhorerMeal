@@ -2,14 +2,11 @@
 
 > Homemade meal marketplace web app where customers can browse meals, place orders, message chefs, and manage everything from role-based dashboards.
 
-[Live Website](https://ghorermeal.web.app) • [Frontend App](https://ghorermeal.web.app)
-
 ---
 
 ## Live Demo
 
-- Frontend: [https://ghorermeal.web.app](https://ghorermeal.web.app)
-- Backend: `TODO` add your deployed API URL if you want it listed publicly
+- [Visit Ghorer Meal](https://ghorermeal.web.app)
 
 ## Features
 
@@ -174,4 +171,6 @@ GhorerMeal/
 
 ## Author
 
-- TODO: add your name, portfolio, and contact links before publishing
+- Md Mahmud Ullah Hasan
+- LinkedIn: [https://www.linkedin.com/in/md-mahmud-ullah-hasan/](https://www.linkedin.com/in/md-mahmud-ullah-hasan/)
+- Email: [contactwithrifat@gmail.com](mailto:contactwithrifat@gmail.com)
