@@ -10,7 +10,7 @@ import Statistics from "../pages/Dashboard/Common/Statistics";
 import MainLayout from "../layouts/MainLayout";
 import MyOrders from "../pages/Dashboard/Customer/MyOrders";
 import { createBrowserRouter } from "react-router";
-import MealDetails from "../pages/PlantDetails/MealDetails";
+import MealDetails from "../pages/MealDetails/MealDetails";
 import ManageRequest from "../pages/Dashboard/Admin/ManageRequest";
 import CreateMeal from "../pages/Dashboard/Seller/CreateMeal";
 import OrderRequests from "../pages/Dashboard/Seller/OrderRequests";
@@ -26,6 +26,7 @@ import About from "../pages/about/About";
 import BecomeChefPage from "../pages/become-a-chef/BecomeChef";
 import Contact from "../pages/contact/Contact";
 import HowItWorks from "../pages/how-it-works/HowItWorks";
+import Messages from "../pages/Dashboard/Common/Messages";
 
 export const router = createBrowserRouter([
   {
@@ -97,6 +98,10 @@ export const router = createBrowserRouter([
             <Profile />
           </PrivateRoute>
         ),
+      },
+      {
+        path: "messages",
+        element: <Messages />,
       },
       // seller
       {

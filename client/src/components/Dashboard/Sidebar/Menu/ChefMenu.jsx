@@ -1,10 +1,10 @@
-import { BsFillHouseAddFill } from 'react-icons/bs'
-import { MdHomeWork } from 'react-icons/md'
-import { MdAddBusiness } from "react-icons/md";
-import { IoFastFoodSharp } from "react-icons/io5";
-import { PiChefHatFill } from "react-icons/pi";
+import { BsChatDotsFill } from 'react-icons/bs'
+import { IoFastFoodSharp } from 'react-icons/io5'
+import { MdAddBusiness } from 'react-icons/md'
+import { PiChefHatFill } from 'react-icons/pi'
 
 import MenuItem from './MenuItem'
+
 const ChefMenu = ({ onNavigate }) => {
   return (
     <>
@@ -14,7 +14,18 @@ const ChefMenu = ({ onNavigate }) => {
         address='create-meal'
         onClick={onNavigate}
       />
-      <MenuItem icon={IoFastFoodSharp} label='My Meals' address='my-meals' onClick={onNavigate} />
+      <MenuItem
+        icon={IoFastFoodSharp}
+        label='My Meals'
+        address='my-meals'
+        onClick={onNavigate}
+      />
+      <MenuItem
+        icon={BsChatDotsFill}
+        label='Messages'
+        address='messages'
+        onClick={onNavigate}
+      />
       <MenuItem
         icon={MdAddBusiness}
         label='Order Requests'
