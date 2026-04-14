@@ -1,12 +1,12 @@
-
-import { MdReviews } from "react-icons/md";
-import { BsCalendarHeartFill } from "react-icons/bs";
-import { PiListNumbersFill } from "react-icons/pi";
-import { IoMdPersonAdd } from "react-icons/io";
+import { BsCalendarHeartFill, BsChatDotsFill } from 'react-icons/bs'
+import { IoMdPersonAdd } from 'react-icons/io'
+import { MdReviews } from 'react-icons/md'
+import { PiListNumbersFill } from 'react-icons/pi'
 
 import MenuItem from './MenuItem'
 import { useState } from 'react'
 import BecomeSellerModal from '../../../Modal/BecomeSellerModal'
+
 const UserMenu = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -16,9 +16,30 @@ const UserMenu = ({ onNavigate }) => {
 
   return (
     <>
-      <MenuItem icon={PiListNumbersFill} label='My Orders' address='my-orders' onClick={onNavigate} />
-      <MenuItem icon={MdReviews} label='My Review' address='my-review' onClick={onNavigate} />
-      <MenuItem icon={BsCalendarHeartFill} label='Favorite Meal' address='favorite-meal' onClick={onNavigate} />
+      <MenuItem
+        icon={PiListNumbersFill}
+        label='My Orders'
+        address='my-orders'
+        onClick={onNavigate}
+      />
+      <MenuItem
+        icon={BsChatDotsFill}
+        label='Messages'
+        address='messages'
+        onClick={onNavigate}
+      />
+      <MenuItem
+        icon={MdReviews}
+        label='My Review'
+        address='my-review'
+        onClick={onNavigate}
+      />
+      <MenuItem
+        icon={BsCalendarHeartFill}
+        label='Favorite Meal'
+        address='favorite-meal'
+        onClick={onNavigate}
+      />
 
       <div
         onClick={() => setIsOpen(true)}
@@ -26,7 +47,7 @@ const UserMenu = ({ onNavigate }) => {
       >
         <IoMdPersonAdd className='w-5 h-5' />
 
-        <span>Become A Seller</span>
+        <span>Become a Seller</span>
       </div>
 
       <BecomeSellerModal closeModal={closeModal} isOpen={isOpen} />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { BsChatDotsFill } from 'react-icons/bs'
 import { FaRegStar, FaStar } from 'react-icons/fa'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -10,7 +11,9 @@ import LoadingSpinner from '../../components/Shared/LoadingSpinner'
 import ReviewModal from '../../components/Modal/ReviewModal'
 import ReviewCard from '../../components/Home/ReviewCard'
 import useAuth from '../../hooks/useAuth'
+import useRole from '../../hooks/useRole'
 import queryFetch from '../../utilitis/queryFetch'
+import ChatModal from '../../components/Modal/ChatModal'
 
 const reviewsPerPage = 6
 
@@ -42,9 +45,13 @@ const formatReviewCount = reviewCount => {
 const MealDetails = () => {
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false)
   const [reviewPage, setReviewPage] = useState(1)
   const { id } = useParams()
   const { user } = useAuth()
+  const { role, isRoleLoading } = useRole()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const {
     data: mealData,
@@ -185,6 +192,22 @@ const MealDetails = () => {
 
     setIsReviewModalOpen(true)
   }
+
+  const openChatModal = () => {
+    if (!user?.email) {
+      toast.error('Please log in to message this chef')
+      navigate('/login', { state: location.pathname })
+      return
+    }
+
+    if (role !== 'user') {
+      return
+    }
+
+    setIsChatModalOpen(true)
+  }
+
+  const showChatButton = !user || (!isRoleLoading && role === 'user')
 
   return (
     <section className='pb-16 pt-6 md:pb-20 md:pt-8'>
@@ -408,6 +431,24 @@ const MealDetails = () => {
         isOpen={isPurchaseModalOpen}
         closeModal={() => setIsPurchaseModalOpen(false)}
         mealData={mealData}
+      />
+
+      {showChatButton && (
+        <button
+          type='button'
+          onClick={openChatModal}
+          className='fixed bottom-6 right-4 z-20 flex items-center gap-3 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-content shadow-lg transition hover:brightness-95 sm:bottom-8 sm:right-8'
+        >
+          <BsChatDotsFill className='h-4 w-4' />
+          <span>Message chef</span>
+        </button>
+      )}
+
+      <ChatModal
+        chefId={chefId}
+        chefName={chefName}
+        isOpen={isChatModalOpen}
+        closeModal={() => setIsChatModalOpen(false)}
       />
     </section>
   )

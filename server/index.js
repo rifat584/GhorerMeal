@@ -79,6 +79,57 @@ const createServer = () => {
       const favoriteColl = db.collection("favorite");
       const ordersColl = db.collection("orders");
       const contactRequestsColl = db.collection("contactRequests");
+      const conversationsColl = db.collection("conversations");
+      const messagesColl = db.collection("messages");
+
+      await conversationsColl.createIndex(
+        { customerEmail: 1, chefId: 1 },
+        { unique: true },
+      );
+      await conversationsColl.createIndex({ updatedAt: -1 });
+      await messagesColl.createIndex({ conversationId: 1, createdAt: 1 });
+
+// Gets User account
+      const getChatAccountByEmail = async (email) => {
+        const account = await usersColl.findOne({ email });
+        if (!account || account.role === "admin") {
+          return null;
+        }
+        console.log("get chat account by email",account);
+        return account;
+      };
+
+      const getConversationForParticipant = async ({
+        conversationId,
+        participantEmail,
+      }) => {
+        if (!ObjectId.isValid(conversationId)) {
+          return null;
+        }
+
+        const conversation = await conversationsColl.findOne({
+          _id: new ObjectId(conversationId),
+        });
+
+        if (!conversation) {
+          return null;
+        }
+
+        const isCustomer = conversation.customerEmail === participantEmail;
+        const isChef = conversation.chefEmail === participantEmail;
+
+        if (!isCustomer && !isChef) {
+          return null;
+        }
+
+        return conversation;
+      };
+
+      const getUnreadCountField = (conversation, currentUserEmail) => {
+        return conversation.customerEmail === currentUserEmail
+          ? "customerUnreadCount"
+          : "chefUnreadCount";
+      };
 
       // POST REQUESTS
       // meals
@@ -225,7 +276,7 @@ const createServer = () => {
         });
         return res.send(result);
       });
-
+// Orders
       app.post("/orders", async (req, res) => {
         const ordersData = req.body;
         const orderTime = new Date().toISOString();
@@ -281,6 +332,7 @@ const createServer = () => {
         res.send(result);
       });
 
+// Contact Requests
       app.post("/contact-requests", async (req, res) => {
         const { name, email, subject, message, phone } = req.body;
 
@@ -301,6 +353,127 @@ const createServer = () => {
         });
 
         res.send(result);
+      });
+      
+// Conversations
+      app.post("/conversations", verifyJWT, async (req, res) => {
+        const customerEmail = req.tokenEmail;
+        const chefId = String(req.body?.chefId || "").trim();
+
+        if (!chefId) {
+          return res.status(400).json({ message: "Chef id is required" });
+        }
+
+        const customer = await getChatAccountByEmail(customerEmail);
+
+        if (!customer || customer.role !== "user") {
+          return res
+            .status(403)
+            .json({ message: "Only customers can start a new conversation" });
+        }
+
+        const chef = await usersColl.findOne({ chefId, role: "chef" });
+
+        if (!chef) {
+          return res.status(404).json({ message: "Chef not found" });
+        }
+
+        const existingConversation = await conversationsColl.findOne({
+          customerEmail,
+          chefId,
+        });
+
+        if (existingConversation) {
+          return res.send(existingConversation);
+        }
+
+        const currentTime = new Date().toISOString();
+        const conversationData = {
+          customerEmail,
+          customerName: customer.name || "Customer",
+          customerImage: customer.profileImage || "",
+          chefId,
+          chefEmail: chef.email,
+          chefName: chef.name || "Chef",
+          chefImage: chef.profileImage || "",
+          lastMessage: "",
+          lastMessageAt: null,
+          lastMessageSender: "",
+          customerUnreadCount: 0,
+          chefUnreadCount: 0,
+          createdAt: currentTime,
+          updatedAt: currentTime,
+        };
+
+        const result = await conversationsColl.insertOne(conversationData);
+        const savedConversation = await conversationsColl.findOne({
+          _id: result.insertedId,
+        });
+
+        res.send(savedConversation);
+      });
+
+      app.post("/messages", verifyJWT, async (req, res) => {
+        const senderEmail = req.tokenEmail;
+        const conversationId = req.body?.conversationId;
+        const text = String(req.body?.text || "").trim();
+
+        if (!conversationId || !text) {
+          return res.status(400).json({
+            message: "Conversation id and message text are required",
+          });
+        }
+
+        const account = await getChatAccountByEmail(senderEmail);
+
+        if (!account) {
+          return res.status(403).json({ message: "Chat is not available" });
+        }
+
+        const conversation = await getConversationForParticipant({
+          conversationId,
+          participantEmail: senderEmail,
+        });
+
+        if (!conversation) {
+          return res.status(403).json({ message: "Conversation access denied" });
+        }
+
+        const createdAt = new Date().toISOString();
+        const messageData = {
+          conversationId,
+          senderEmail,
+          senderRole: account.role,
+          text,
+          createdAt,
+          isRead: false,
+        };
+
+        const result = await messagesColl.insertOne(messageData);
+
+        const unreadField =
+          conversation.customerEmail === senderEmail
+            ? "chefUnreadCount"
+            : "customerUnreadCount";
+
+        await conversationsColl.updateOne(
+          { _id: conversation._id },
+          {
+            $set: {
+              lastMessage: text,
+              lastMessageAt: createdAt,
+              lastMessageSender: senderEmail,
+              updatedAt: createdAt,
+            },
+            $inc: {
+              [unreadField]: 1,
+            },
+          },
+        );
+
+        const savedMessage = await messagesColl.findOne({ _id: result.insertedId });
+
+        res.send(savedMessage);
       });
 
       // GET REQUESTS
@@ -439,6 +612,65 @@ const createServer = () => {
       app.get("/roles", async (req, res) => {
         const result = await rolesColl.find().toArray();
         res.send(result);
+      });
+
+      // Get customer and chef's conversations history-all
+      app.get("/conversations", verifyJWT, async (req, res) => {
+        const account = await getChatAccountByEmail(req.tokenEmail);
+        if (!account) {
+          return res.status(403).json({ message: "Chat is not available" });
+        }
+
+        const conversationQuery =
+          account.role === "chef"
+            ? { chefId: account.chefId }
+            : { customerEmail: req.tokenEmail };
+
+        const conversations = await conversationsColl
+          .find(conversationQuery)
+          .sort({ updatedAt: -1, lastMessageAt: -1 })
+          .toArray();
+        res.send(conversations);
+      });
+
+      // Get customer and chef's conversations- one for modal
+      app.get("/conversations/:chefId", verifyJWT, async (req, res)=>{
+
+        const chefId = req.params.chefId
+        const account = await getChatAccountByEmail(req?.tokenEmail);
+
+        if(!account) return res.status(403).json({message: "Chat is not available, login first!"});
+
+        if(account.role !== 'user'){
+          return res.status(403).json({message: "Only customers can open this chat!"})
+        }
+
+        const conversation = await conversationsColl.findOne({
+          customerEmail: account.email,
+          chefId
+        })
+        res.json(conversation)
+      })
+
+
+// get all messages of customer & chef
+      app.get("/messages/:conversationId", verifyJWT, async (req, res) => {
+        const conversationId = req.params.conversationId;
+        const conversation = await getConversationForParticipant({
+          conversationId,
+          participantEmail: req.tokenEmail,
+        });
+
+        if (!conversation) {
+          return res.status(403).json({ message: "Conversation access denied" });
+        }
+
+        const messages = await messagesColl
+          .find({ conversationId })
+          .sort({ createdAt: 1 })
+          .toArray();
+
+        res.send(messages);
       });
 
       //  user's favorite
@@ -594,6 +826,43 @@ const createServer = () => {
           },
         });
         res.send(result);
+      });
+
+      app.patch("/conversations/read/:conversationId", verifyJWT, async (req, res) => {
+        const conversationId = req.params.conversationId;
+        const currentUserEmail = req.tokenEmail;
+        const conversation = await getConversationForParticipant({
+          conversationId,
+          participantEmail: currentUserEmail,
+        });
+
+        if (!conversation) {
+          return res.status(403).json({ message: "Conversation access denied" });
+        }
+
+        const unreadField = getUnreadCountField(conversation, currentUserEmail);
+
+        await messagesColl.updateMany(
+          {
+            conversationId,
+            senderEmail: { $ne: currentUserEmail },
+            isRead: false,
+          },
+          {
+            $set: { isRead: true },
+          },
+        );
+
+        await conversationsColl.updateOne(
+          { _id: conversation._id },
+          {
+            $set: {
+              [unreadField]: 0,
+            },
+          },
+        );
+
+        res.send({ success: true });
       });
 
       app.patch("/meal/:id", async (req, res) => {

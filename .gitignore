@@ -13,5 +13,6 @@ coverage/
 
 .DS_Store
 .vscode/
+.codex
 
 AGENTS.md
